@@ -54,7 +54,8 @@ public:
                 if(i==3) number(id(i,"width"),name+"tight to wide",0,100,35);
             } else {
                 number(id(i,"mod"),name+"modulation",0,100,0);
-                if(i==7) {number(id(i,"lowRatio"),name+"low decay ratio",.25f,2,1);number(id(i,"highRatio"),name+"high decay ratio",.25f,2,1);}
+                number(id(i,"lowRatio"),name+"low decay ratio",.25f,2,1);number(id(i,"highRatio"),name+"high decay ratio",.25f,2,1);
+                if(i==7)number(id(i,"shape"),name+"nonlinear decay",.04f,3.5f,.1f);
                 number(id(i,"decay"),name+"decay seconds",.1f,10,1.5f);
                 number(id(i,"predelay"),name+"predelay ms",0,500,0);
             }
@@ -65,8 +66,8 @@ public:
         state(*this,nullptr,"EpicLab",layout()) {
         for(auto* p:getParameters()) if(auto* named=dynamic_cast<juce::AudioProcessorParameterWithID*>(p)) values[named->paramID]=state.getRawParameterValue(named->paramID);
         master={values.at("input"),values.at("output"),values.at("mix")};
-        const char* fields[]={"level","hp","lp","mute","solo","time","feedback","sync","beats","direct","send0","send1","send2","send3","decay","predelay","mod","time2","feedback2","sync2","beats2","offset","triggerEnabled","trigger","vso","width","lowRatio","highRatio"};
-        for(int i=0;i<8;++i) for(int k=0;k<28;++k) {
+        const char* fields[]={"level","hp","lp","mute","solo","time","feedback","sync","beats","direct","send0","send1","send2","send3","decay","predelay","mod","time2","feedback2","sync2","beats2","offset","triggerEnabled","trigger","vso","width","lowRatio","highRatio","shape"};
+        for(int i=0;i<8;++i) for(int k=0;k<29;++k) {
             auto found=values.find(id(i,fields[k]));
             if(found!=values.end()) cached[i][k]=found->second;
         }
@@ -96,7 +97,7 @@ public:
                 if(i==1){s.triggerEnabled=v(22)>.5f;s.trigger=v(23)>.5f;}
                 if(i==2)s.vso=v(24);if(i==3)s.crowdWidth=v(25);
                 for(int r=0;r<4;++r) s.sends[i][r]=v(10+r);
-            } else {s.decay[i-4]=v(14);s.predelay[i-4]=v(15);s.reverbMod[i-4]=v(16);if(i==7){s.lowRatio=v(26);s.highRatio=v(27);}}
+            } else {s.decay[i-4]=v(14);s.predelay[i-4]=v(15);s.reverbMod[i-4]=v(16);if(i==7){s.lowRatio=v(26);s.highRatio=v(27);s.spaceShape=v(28);}else{s.toneLow[i-4]=v(26);s.toneHigh[i-4]=v(27);}}
         }
         for(int ch=0;ch<2;++ch) meters[ch].store(b.getMagnitude(juce::jmin(ch,b.getNumChannels()-1),0,b.getNumSamples()));
         double bpm=120;
@@ -138,7 +139,7 @@ public:
                 if(i==1){set(id(i,"triggerEnabled"),s.triggerEnabled?1.f:0.f);set(id(i,"trigger"),s.trigger?1.f:0.f);}
                 if(i==2)set(id(i,"vso"),s.vso);if(i==3)set(id(i,"width"),s.crowdWidth);
                 for(int r=0;r<4;++r) set(id(i,("send"+juce::String(r)).toRawUTF8()),s.sends[i][r]);
-            } else {set(id(i,"decay"),s.decay[i-4]);set(id(i,"predelay"),s.predelay[i-4]);set(id(i,"mod"),s.reverbMod[i-4]);if(i==7){set(id(i,"lowRatio"),s.lowRatio);set(id(i,"highRatio"),s.highRatio);}}
+            } else {set(id(i,"decay"),s.decay[i-4]);set(id(i,"predelay"),s.predelay[i-4]);set(id(i,"mod"),s.reverbMod[i-4]);set(id(i,"lowRatio"),i==7?s.lowRatio:s.toneLow[i-4]);set(id(i,"highRatio"),i==7?s.highRatio:s.toneHigh[i-4]);if(i==7)set(id(i,"shape"),s.spaceShape);}
         }
         currentProgram.store(index);
     }

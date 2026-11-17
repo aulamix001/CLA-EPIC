@@ -41,7 +41,8 @@ struct Settings {
     std::array<float,4> offset {}, modulation {};
     std::array<float,4> reverbMod {};
     bool triggerEnabled=false, trigger=false;
-    float crowdWidth=35, vso=0, lowRatio=1, highRatio=1;
+    float crowdWidth=35, vso=0, lowRatio=1, highRatio=1, spaceShape=.1f;
+    std::array<float,3> toneLow {1,1,1}, toneHigh {1,1,1};
     std::array<float, 4> beats {.5f,.5f,.25f,.125f};
     std::array<float, 4> decay {1.5f, .8f, 2.5f, 4.f}, predelay {0,0,10,20};
     std::array<std::array<float, 4>, 4> sends {};
@@ -58,6 +59,7 @@ class Engine {
     std::array<float,8> phase {};
     std::array<float,8> levels {};
     float inputGain = 1, outputGain = 1, wet = .3f;
+    std::array<float,2> spaceAge {}, spaceGate {1,1};
     static constexpr float combMs[4][4] = {{29.7f,37.1f,41.1f,43.7f},{11.7f,17.3f,19.9f,23.3f},{43.7f,53.1f,61.7f,71.3f},{67.3f,79.7f,89.3f,101.1f}};
 public:
     bool isPrepared() const noexcept {return prepared;}
@@ -65,7 +67,7 @@ public:
     void prepare(double sr) {
         prepared=false;
         sr=std::isfinite(sr)&&sr>=8000&&sr<=768000?sr:48000;
-        sampleRate = sr; filters = {}; levels.fill(0); for(auto& t:currentTime)t.fill(1); phase.fill(0);
+        sampleRate = sr; filters = {}; levels.fill(0); for(auto& t:currentTime)t.fill(1); phase.fill(0);spaceAge.fill(0);spaceGate.fill(1);
         inputGain = outputGain = 1; wet = .3f;
         for(auto& bank:delays) for(auto& d:bank) d.prepare(sr);
         for(auto& bank:pre) for(auto& d:bank) d.prepare(sr, .51f);
@@ -97,9 +99,13 @@ public:
             for(int ch=0;ch<2;++ch) for(int k=0;k<4;++k) {
                 taps[i][ch][k]=float(sampleRate*.001)*(combMs[i][k]+ch*.71f);
                 feedbacks[i][ch][k]=std::pow(.001f, (taps[i][ch][k]/float(sampleRate))/std::max(.1f,s.decay[i]));
-                if(i==3)feedbacks[i][ch][k]=std::pow(feedbacks[i][ch][k],1.f/std::max(.25f,k<2?s.lowRatio:s.highRatio));
+                const float ratio=i==3?(k<2?s.lowRatio:s.highRatio):(k<2?s.toneLow[i]:s.toneHigh[i]);
+                feedbacks[i][ch][k]=std::pow(feedbacks[i][ch][k],1.f/std::max(.25f,ratio));
             }
         }
+        const float gateSmoothing=1-std::exp(-1.f/float(sampleRate*.005));
+        const float shape=std::clamp((s.spaceShape-.1f)/3.4f,0.f,1.f);
+        const float gateHold=std::max(.03f,s.decay[3]*(1.f-.95f*shape));
         const float smoothing=1-std::exp(-1.f/float(sampleRate*.02));
         for(int n=0;n<count;++n) {
             inputGain += smoothing*(targetInput-inputGain);
@@ -138,6 +144,11 @@ public:
                         const float motion=s.reverbMod[r]==0?0:std::sin(phase[r+4]+ch+k)*s.reverbMod[r]*.000005f*float(sampleRate);
                         const float v=comb.read(taps[r][ch][k]+motion);
                         comb.push(pred+v*feedbacks[r][ch][k]); sum+=v*.25f;
+                    }
+                    if(r==3){
+                        spaceAge[ch]=std::abs(pred)>1.e-5f?0:spaceAge[ch]+1.f/float(sampleRate);
+                        const float gateTarget=shape<=1.e-4f||spaceAge[ch]<=gateHold?1.f:0.f;
+                        spaceGate[ch]+=gateSmoothing*(gateTarget-spaceGate[ch]);sum*=spaceGate[ch];
                     }
                     result[ch]+=filters[r+4][ch].process(sum,hp[r+4],lp[r+4])*levels[r+4];
                 }

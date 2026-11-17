@@ -11,12 +11,18 @@ juce::Component* find(juce::Component& c,const juce::String& id){
  for(auto* child:c.getChildren())if(auto* result=find(*child,id))return result;
  return nullptr;
 }
+class TestWindow final : public juce::DocumentWindow {
+public:
+ TestWindow():DocumentWindow("EpicLab UI interaction test",juce::Colours::black,DocumentWindow::closeButton){setUsingNativeTitleBar(true);}
+ void closeButtonPressed() override {setVisible(false);}
+};
 int main(){
  try {
  juce::ScopedJuceInitialiser_GUI gui;
  std::unique_ptr<juce::AudioProcessor> p(createPluginFilter());
  std::unique_ptr<juce::AudioProcessorEditor> editor(p->createEditor());
- check(editor!=nullptr,"editor exists");editor->setSize(1100,748);
+ check(editor!=nullptr,"editor exists");editor->setSize(1100,705);
+ TestWindow window;window.setContentNonOwned(editor.get(),true);window.centreWithSize(1100,705);window.setVisible(true);window.toFront(true);
  auto* combo=dynamic_cast<juce::ComboBox*>(find(*editor,"factoryPresets"));check(combo&&combo->getNumItems()==200,"200 presets in live selector");
  std::set<juce::String> visited;
  for(int tab=0;tab<4;++tab){
@@ -66,7 +72,8 @@ int main(){
     if(i==2)checkControl(key("vso"),settings.vso);if(i==3)checkControl(key("width"),settings.crowdWidth);
    }else{
     checkControl(key("decay"),settings.decay[i-4]);checkControl(key("predelay"),settings.predelay[i-4]);checkControl(key("mod"),settings.reverbMod[i-4]);
-    if(i==7){checkControl(key("lowRatio"),settings.lowRatio);checkControl(key("highRatio"),settings.highRatio);}
+    checkControl(key("lowRatio"),i==7?settings.lowRatio:settings.toneLow[i-4]);checkControl(key("highRatio"),i==7?settings.highRatio:settings.toneHigh[i-4]);
+    if(i==7)checkControl(key("shape"),settings.spaceShape);
    }
   }
 
@@ -78,6 +85,50 @@ int main(){
    check(mute&&mute->getToggleState()==settings.strips[strip].mute,"preset maps mute LEDs");
   }
  }
+ // Exercise real click-to-edit and the drawn arrow buttons, not just setValue().
+ auto select=[&](bool reverb,int i){auto* button=dynamic_cast<juce::Button*>(find(*editor,juce::String(reverb?"reverbTab":"delayTab")+juce::String(i)));check(button!=nullptr,"selector exists");button->onClick();};
+ auto parameter=[&](const juce::String& id)->juce::RangedAudioParameter*{for(auto* base:p->getParameters())if(auto* par=dynamic_cast<juce::RangedAudioParameter*>(base))if(par->paramID==id)return par;throw std::runtime_error("missing parameter");};
+ auto read=[&](const juce::String& id){auto* par=parameter(id);return par->convertFrom0to1(par->getValue());};
+ auto clickEvent=[](juce::Component& c){return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(),{float(c.getWidth()/2),float(c.getHeight()/2)},juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),1,0,0,0,0,&c,&c,juce::Time::getCurrentTime(),{float(c.getWidth()/2),float(c.getHeight()/2)},juce::Time::getCurrentTime(),1,false);};
+ auto typeValue=[&](const juce::String& id,const juce::String& text){
+  auto* slider=dynamic_cast<juce::Slider*>(find(*editor,id));check(slider!=nullptr,"numeric control exists: "+id);
+  auto event=clickEvent(*slider);slider->mouseDown(event);slider->mouseUp(event);
+  auto* input=dynamic_cast<juce::TextEditor*>(find(*slider,id+"_edit"));check(input&&input->isVisible(),"click opens numeric editor: "+id);
+  input->setText(text,false);input->onReturnKey();check(!input->isVisible(),"enter closes numeric editor");
+ };
+ select(false,0);typeValue("s0_time","321,5 ms");check(std::abs(read("s0_time")-321.5f)<.01f,"typed milliseconds change DSP parameter");
+ typeValue("s0_feedback","42.5%");check(std::abs(read("s0_feedback")-42.5f)<.01f,"typed feedback percent");
+ typeValue("s0_beats","1/8D");check(std::abs(read("s0_beats")-.75f)<.0001f&&read("s0_sync")==1,"typed dotted note enables tempo sync");
+ typeValue("s0_beats","1/0");check(std::abs(read("s0_beats")-.75f)<.0001f,"invalid division rejected");
+ select(false,2);typeValue("s2_vso","15 IPS");check(read("s2_vso")==2&&read("s2_sync")==0,"typed VSO tape speed");
+ typeValue("s2_time","87 ms");check(std::abs(read("s2_time")-87)<.001f&&read("s2_vso")==0&&read("s2_sync")==0,"manual time exits VSO and sync modes");
+ select(true,3);typeValue("s7_shape","2,25");check(std::abs(read("s7_shape")-2.25f)<.0001f,"independent Space decay editing");
+ typeValue("s7_decay","2.6sec");check(std::abs(read("s7_decay")-2.6f)<.0001f&&std::abs(read("s7_shape")-2.25f)<.0001f,"reverb time does not change Space shape");
+ select(true,0);typeValue("s4_lowRatio","x1,25");check(std::abs(read("s4_lowRatio")-1.25f)<.0001f,"Plate ratio editing");
+ typeValue("s4_lowRatio","nan");check(std::abs(read("s4_lowRatio")-1.25f)<.0001f,"nonfinite typed values rejected");
+ std::set<juce::String> arrowsTested;
+ for(int tab=0;tab<4;++tab){
+  select(false,tab);select(true,tab);
+  for(auto* base:p->getParameters()){
+   auto* par=dynamic_cast<juce::RangedAudioParameter*>(base);if(!par)continue;
+   auto* up=dynamic_cast<juce::Button*>(find(*editor,par->paramID+"_up"));auto* down=dynamic_cast<juce::Button*>(find(*editor,par->paramID+"_down"));if(!up||!down)continue;
+   auto* slider=dynamic_cast<juce::Slider*>(find(*editor,par->paramID));slider->setValue(par->convertFrom0to1(.5f),juce::sendNotificationSync);
+   const auto before=read(par->paramID);up->onClick();const auto after=read(par->paramID);check(after>before,"up arrow controls parameter: "+par->paramID);
+   down->onClick();check(read(par->paramID)<after,"down arrow controls parameter: "+par->paramID);arrowsTested.insert(par->paramID);
+  }
+ }
+ check(arrowsTested.size()==39,"all 39 displayed arrow pairs are functional");
+ select(false,1);select(true,3);
+ for(const auto id:{"s0_hp","s0_lp","s1_mod","s7_mod"}){
+  auto* knob=dynamic_cast<juce::Slider*>(find(*editor,id));check(knob!=nullptr,"knob exists");
+  knob->setValue(knob->getMinimum(),juce::sendNotificationSync);const auto a=knob->createComponentSnapshot(knob->getLocalBounds());
+  knob->setValue(knob->getMaximum(),juce::sendNotificationSync);const auto b=knob->createComponentSnapshot(knob->getLocalBounds());
+  const float cx=knob->getWidth()*.5f,cy=knob->getHeight()*.5f;int samples=0;
+  for(int y=0;y<a.getHeight();++y)for(int x=0;x<a.getWidth();++x){const float radius=std::hypot(x+.5f-cx,y+.5f-cy);
+   if(radius>=(a.getWidth()>60?23.f:20.f)&&radius<=(a.getWidth()>60?29.f:21.f)){check(a.getPixelAt(x,y)==b.getPixelAt(x,y),"knob outer ring stays aligned: "+juce::String(id));++samples;}}
+  check(samples>20,"knob alignment samples executed");
+ }
+
  // Edited values survive state restore rather than reloading the factory defaults.
  std::vector<float> saved;
  int editIndex=0;
@@ -96,8 +147,8 @@ int main(){
  check(p->getProgramName(-1).isEmpty()&&p->getProgramName(200).isEmpty(),"invalid names are empty");
  check(p->getProgramName(99)=="FX / Wash","legacy slot 99 retains its name");
 
- // Preserve the original geometry: no toolbar, replacement panels or generic skin.
- p->setCurrentProgram(0);
+ // Preserve the frame, geometry and original PNG.
+ combo->setSelectedId(1,juce::sendNotificationSync);
  dynamic_cast<juce::Button*>(find(*editor,"delayTab1"))->onClick();
  dynamic_cast<juce::Button*>(find(*editor,"reverbTab3"))->onClick();
  editor->setSize(1567,1004);
@@ -112,12 +163,18 @@ int main(){
  for(const auto& zone:immutableZones)for(int y=zone.getY();y<zone.getBottom();y+=3)for(int x=zone.getX();x<zone.getRight();x+=3)
   check(snapshot.getPixelAt(x,y)==original.getPixelAt(x,y),"original skin pixel mapping mismatch at "+juce::String(x)+","+juce::String(y));
  auto* firstFader=find(*editor,"s0_level");check(firstFader&&firstFader->getBounds()==juce::Rectangle<int>(224,578,44,342),"fader stays at original position");
- auto* logo=find(*editor,"factoryPresets");check(logo&&logo->getBounds()==juce::Rectangle<int>(1427,245,119,79),"presets use original logo, no extra toolbar");
+ auto* selector=find(*editor,"factoryPresets");check(selector&&selector->isVisible()&&selector->getBounds()==juce::Rectangle<int>(1427,328,119,48),"preset selector is visible in right sidebar");
+ int presetPixels=0;for(int y=328;y<376;y+=2)for(int x=1427;x<1546;x+=2)if(snapshot.getPixelAt(x,y)!=original.getPixelAt(x,y))++presetPixels;
+ check(presetPixels>50,"PRESETS selector is actually drawn rather than transparent");
+ check(combo->getText().contains("001")&&combo->getText().contains("Vocal"),"visible preset name and number");
  // Save a separate application screenshot; never modify the immutable source image.
  auto preview=juce::File::getCurrentWorkingDirectory().getChildFile("interface-preview.png");
  preview.deleteFile();if(auto stream=preview.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(snapshot,*stream),"write preview screenshot");}
- editor->setSize(840,540);editor->setSize(1882,1210);
- std::cout<<"PASS: all "<<visited.size()<<" live parameter controls, automation, 200 preset fader mappings and edited state restore\n";
+ dynamic_cast<juce::Button*>(find(*editor,"delayTab2"))->onClick();dynamic_cast<juce::Button*>(find(*editor,"reverbTab1"))->onClick();
+ auto alternate=editor->createComponentSnapshot(editor->getLocalBounds());auto file=juce::File::getCurrentWorkingDirectory().getChildFile("interface-slap-room.png");file.deleteFile();
+ if(auto stream=file.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(alternate,*stream),"write Slap/Room screenshot");}
+ editor->setSize(840,540);editor->setSize(1882,1210);window.clearContentComponent();
+ std::cout<<"PASS: all "<<visited.size()<<" live parameter controls, automation, 200 preset fader mappings, mouse/keyboard editing, 39 arrow pairs, fixed knob rings and edited state restore\n";
  return 0;
- }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
+ }catch(const std::exception& error){std::cerr<<"UI ERROR: "<<error.what()<<'\n';return 1;}
 }

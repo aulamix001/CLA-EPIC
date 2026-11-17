@@ -29,6 +29,8 @@ int main(){
  auto gateOpen=base;gateOpen.triggerEnabled=true;gateOpen.trigger=true;
  auto opened=render(gateOpen);if(opened!=reference)throw std::runtime_error("open trigger should pass input");
  compare("Slap VSO",[](auto& s){s.vso=1;});compare("Crowd width",[](auto& s){s.crowdWidth=80;});
+ for(int i=0;i<3;++i){compare("reverb low ratio",[i](auto& s){s.toneLow[i]=1.8f;});compare("reverb high ratio",[i](auto& s){s.toneHigh[i]=.4f;});}
+ compare("Space nonlinear decay",[](auto& s){s.spaceShape=3.5f;});
  compare("Space low ratio",[](auto& s){s.lowRatio=1.8f;});compare("Space high ratio",[](auto& s){s.highRatio=.4f;});
  compare("delay send",[](auto& s){s.sends[0][0]=90;});compare("direct out",[](auto& s){s.direct[0]=false;});
  compare("filter",[](auto& s){s.strips[0].hp=1500;s.strips[4].lp=1000;});

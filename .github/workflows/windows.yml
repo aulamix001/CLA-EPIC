@@ -23,9 +23,14 @@ jobs:
           $bundle = 'build-win/EpicLab_artefacts/Release/VST3/EpicLab.vst3'
           if (!(Test-Path "$bundle/Contents/x86_64-win/EpicLab.vst3")) { throw 'Windows x64 VST3 binary missing' }
           Copy-Item build-win/interface-preview.png dist/EpicLab-interface.png
+          Copy-Item build-win/interface-slap-room.png dist/EpicLab-Slap-Room.png
+          $presetFiles = @(Get-ChildItem build-win/factory-presets -Recurse -Filter *.vstpreset)
+          if ($presetFiles.Count -ne 200) { throw 'Expected 200 exported native VST3 presets' }
+          Compress-Archive -Path build-win/factory-presets/* -DestinationPath dist/EpicLab-200-Presets.zip
           Compress-Archive -Path $bundle -DestinationPath dist/EpicLab-Windows-x64-VST3.zip
           $hash = (Get-FileHash dist/EpicLab-Windows-x64-VST3.zip -Algorithm SHA256).Hash.ToLower()
-          "$hash  EpicLab-Windows-x64-VST3.zip" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+          $presetHash = (Get-FileHash dist/EpicLab-200-Presets.zip -Algorithm SHA256).Hash.ToLower()
+          @("$hash  EpicLab-Windows-x64-VST3.zip", "$presetHash  EpicLab-200-Presets.zip") | Set-Content -Encoding ascii dist/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: EpicLab-Windows-x64-VST3
@@ -38,7 +43,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $options = @()
-          $notes = 'VST3 x64 with 200 mapped factory presets and the preserved skin. Includes host lifecycle, native editor removal and real VST3 loading tests. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Studio One 8.2.0.114903 removal fix remains unconfirmed in that DAW.'
+          $notes = 'VST3 x64 with a visible PRESETS selector, 200 mapped factory presets plus 200 native vstpreset files. Editable numeric fields, functional arrows and aligned knob rings. Includes host lifecycle, native editor removal and real VST3 preset roundtrip tests. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Studio One 8.2.0.114903 removal fix remains unconfirmed in that DAW.'
           if ($env:GITHUB_REF_NAME -match '-rc') { $options += '--prerelease'; $notes = 'Release candidate for compatibility testing. ' + $notes }
-          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt dist/EpicLab-interface.png --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes $notes @options
+          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt dist/EpicLab-200-Presets.zip dist/EpicLab-interface.png dist/EpicLab-Slap-Room.png --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes $notes @options
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

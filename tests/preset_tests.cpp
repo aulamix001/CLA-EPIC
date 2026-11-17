@@ -23,6 +23,9 @@ int main(){
    check(s.modulation[i]>=0&&s.modulation[i]<=100&&s.reverbMod[i]>=0&&s.reverbMod[i]<=100,"modulation ranges");
    for(float send:s.sends[i])check(send>=0&&send<=100,"send ranges");
   }
+  for(float value:s.toneLow)check(value>=.25f&&value<=2,"reverb low ratio range");
+  for(float value:s.toneHigh)check(value>=.25f&&value<=2,"reverb high ratio range");
+  check(s.spaceShape>=.04f&&s.spaceShape<=3.5f,"Space nonlinear decay range");
   check(s.crowdWidth>=0&&s.crowdWidth<=100&&s.vso>=0&&s.vso<=3,"width/VSO ranges");
   check(s.lowRatio>=.25f&&s.lowRatio<=2&&s.highRatio>=.25f&&s.highRatio<=2,"decay ratios");
   check(signatures.insert(signature).second,"unique fader/mute mappings");

@@ -12,6 +12,26 @@ public:
  Window():DocumentWindow("EpicLab VST3 host validation",juce::Colours::black,DocumentWindow::closeButton){setUsingNativeTitleBar(true);}
  void closeButtonPressed() override {setVisible(false);}
 };
+struct CapturePreset final : juce::ExtensionsVisitor {
+ juce::MemoryBlock data;
+ void visitVST3Client(const VST3Client& client) override {data=client.getPreset();}
+};
+struct RestorePreset final : juce::ExtensionsVisitor {
+ const juce::MemoryBlock& data;bool restored=false;
+ explicit RestorePreset(const juce::MemoryBlock& bytes):data(bytes){}
+ void visitVST3Client(const VST3Client& client) override {restored=client.setPreset(data);}
+};
+juce::MemoryBlock componentChunk(const juce::MemoryBlock& preset){
+ check(preset.getSize()>=48&&std::memcmp(preset.getData(),"VST3",4)==0,"native preset VST3 header");
+ juce::MemoryInputStream stream(preset,false);stream.setPosition(40);const auto list=stream.readInt64();
+ check(list>=48&&list<=juce::int64(preset.getSize())-8,"preset chunk list offset");stream.setPosition(list);
+ char tag[4];stream.read(tag,4);check(std::memcmp(tag,"List",4)==0,"native preset chunk table");const int count=stream.readInt();check(count>0&&count<=16,"preset chunk count");
+ for(int i=0;i<count;++i){stream.read(tag,4);const auto offset=stream.readInt64(),size=stream.readInt64();
+  check(offset>=48&&size>=0&&offset<=juce::int64(preset.getSize())&&size<=juce::int64(preset.getSize())-offset,"preset chunk bounds");
+  if(std::memcmp(tag,"Comp",4)==0)return {static_cast<const char*>(preset.getData())+offset,size_t(size)};
+ }
+ throw std::runtime_error("preset contains no component state");
+}
 int main(int argc,char** argv){
  try{
   juce::ScopedJuceInitialiser_GUI gui;check(argc==2,"VST3 path required");
@@ -43,11 +63,26 @@ int main(int argc,char** argv){
    Window window;window.setContentNonOwned(editor.get(),true);window.centreWithSize(editor->getWidth(),editor->getHeight());window.setVisible(true);pump(100);
    if(cycle==0){
     juce::AudioBuffer<float> audio(2,64);juce::MidiBuffer midi;
+    const auto presetDirectory=juce::File::getCurrentWorkingDirectory().getChildFile("factory-presets");
+    check(presetDirectory.createDirectory().wasOk(),"create preset export directory");juce::Array<juce::var> manifest;
     for(int preset=0;preset<200;++preset){
      plugin->setCurrentProgram(preset);check(plugin->getCurrentProgram()==preset,"VST3 program change");
      audio.clear();plugin->processBlock(audio,midi);
+     CapturePreset capture;plugin->getExtensions(capture);const auto component=componentChunk(capture.data);
+     const auto name=plugin->getProgramName(preset),group=name.upToFirstOccurrenceOf(" / ",false,false);
+     const auto folder=presetDirectory.getChildFile(juce::File::createLegalFileName(group));check(folder.createDirectory().wasOk(),"create preset category");
+     const auto filename=juce::File::createLegalFileName(juce::String(preset+1).paddedLeft('0',3)+" "+name.replace(" / "," - ")+".vstpreset");
+     const auto file=folder.getChildFile(filename);check(file.replaceWithData(capture.data.getData(),capture.data.getSize()),"export native vstpreset");
+     plugin->setCurrentProgram((preset+1)%200);audio.clear();plugin->processBlock(audio,midi);
+     CapturePreset different;plugin->getExtensions(different);check(componentChunk(different.data)!=component,"preset roundtrip starts from a different state");
+     juce::MemoryBlock fromDisk;check(file.loadFileAsData(fromDisk),"read exported preset");RestorePreset restore(fromDisk);plugin->getExtensions(restore);check(restore.restored,"import native vstpreset");
+     CapturePreset roundTrip;plugin->getExtensions(roundTrip);check(componentChunk(roundTrip.data)==component,"all preset component settings survive file roundtrip");
+     juce::var item(new juce::DynamicObject());auto* entry=item.getDynamicObject();entry->setProperty("number",preset+1);entry->setProperty("name",name);entry->setProperty("file",file.getRelativePathFrom(presetDirectory).replaceCharacter(juce::File::getSeparatorChar(),'/'));manifest.add(item);
      if(preset%25==0){std::cout<<"HOST preset "<<preset<<std::endl;pump(2);}
     }
+    check(manifest.size()==200,"200 native preset exports");check(presetDirectory.getChildFile("presets.json").replaceWithText(juce::JSON::toString(juce::var(manifest))),"write native preset manifest");
+    // Synchronise the host's cached program parameter before its normal state roundtrip.
+    plugin->setCurrentProgram(199);
     juce::MemoryBlock state;plugin->getStateInformation(state);check(state.getSize()>0,"host state is nonempty");
     plugin->setCurrentProgram(0);plugin->setStateInformation(state.getData(),int(state.getSize()));pump(30);
     check(plugin->getCurrentProgram()==199,"VST3 state restores extended program");
