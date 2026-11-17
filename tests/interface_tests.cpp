@@ -42,6 +42,32 @@ int main(){
  for(int n=0;n<100;++n){
   combo->setSelectedId(n+1,juce::sendNotificationSync);check(p->getCurrentProgram()==n,"preset selector updates processor");
   const auto& settings=epic::factoryPresets()[size_t(n)].settings;
+  auto checkControl=[&](const juce::String& key,float expected){
+   auto* c=find(*editor,key);check(c!=nullptr,"preset control exists: "+key);
+   if(auto* slider=dynamic_cast<juce::Slider*>(c))check(std::abs(slider->getValue()-expected)<.02,"preset knob/fader mapping: "+key);
+   else if(auto* button=dynamic_cast<juce::Button*>(c))check(button->getToggleState()==(expected>.5f),"preset button mapping: "+key);
+   else check(false,"unsupported preset control");
+  };
+  checkControl("input",settings.input);checkControl("output",settings.output);checkControl("mix",settings.mix);
+  for(int i=0;i<8;++i){
+   auto key=[&](const char* f){return "s"+juce::String(i)+"_"+f;};
+   auto* tab=dynamic_cast<juce::Button*>(find(*editor,juce::String(i<4?"delayTab":"reverbTab")+juce::String(i%4)));tab->onClick();
+   const auto& strip=settings.strips[i];
+   checkControl(key("level"),strip.level);checkControl(key("hp"),strip.hp);checkControl(key("lp"),strip.lp);
+   checkControl(key("mute"),strip.mute);checkControl(key("solo"),strip.solo);
+   if(i<4){
+    checkControl(key("time"),settings.time[i]);checkControl(key("feedback"),settings.feedback[i]);checkControl(key("beats"),settings.beats[i]);checkControl(key("sync"),settings.sync[i]);
+    checkControl(key("mod"),settings.modulation[i]);checkControl(key("direct"),settings.direct[i]);
+    for(int r=0;r<4;++r)checkControl(key(("send"+juce::String(r)).toRawUTF8()),settings.sends[i][r]);
+    if(i<2){checkControl(key("time2"),settings.time2[i]);checkControl(key("feedback2"),settings.feedback2[i]);checkControl(key("beats2"),settings.beats2[i]);checkControl(key("sync2"),settings.sync2[i]);checkControl(key("offset"),settings.offset[i]);}
+    if(i==1){checkControl(key("triggerEnabled"),settings.triggerEnabled);checkControl(key("trigger"),settings.trigger);}
+    if(i==2)checkControl(key("vso"),settings.vso);if(i==3)checkControl(key("width"),settings.crowdWidth);
+   }else{
+    checkControl(key("decay"),settings.decay[i-4]);checkControl(key("predelay"),settings.predelay[i-4]);checkControl(key("mod"),settings.reverbMod[i-4]);
+    if(i==7){checkControl(key("lowRatio"),settings.lowRatio);checkControl(key("highRatio"),settings.highRatio);}
+   }
+  }
+
   for(int strip=0;strip<8;++strip){
    auto key="s"+juce::String(strip)+"_level";
    auto* slider=dynamic_cast<juce::Slider*>(find(*editor,key));
