@@ -151,9 +151,10 @@ int main(){
  combo->setSelectedId(1,juce::sendNotificationSync);
  dynamic_cast<juce::Button*>(find(*editor,"delayTab1"))->onClick();
  dynamic_cast<juce::Button*>(find(*editor,"reverbTab3"))->onClick();
- editor->setSize(1567,1004);
+ editor->setSize(1567,1058);
+ auto* surface=find(*editor,"skinSurface");check(surface!=nullptr,"original skin surface exists");
  auto original=juce::ImageCache::getFromMemory(BinaryData::imagem_png,BinaryData::imagem_pngSize);
- auto snapshot=editor->createComponentSnapshot(editor->getLocalBounds());
+ auto snapshot=surface->createComponentSnapshot(surface->getLocalBounds());
  check(snapshot.getWidth()==original.getWidth()&&snapshot.getHeight()==original.getHeight(),"skin native dimensions failed");
  const juce::Rectangle<int> immutableZones[]={
   {0,0,1567,20},{0,984,1567,20},{0,0,16,1004},{1549,0,18,1004},
@@ -163,15 +164,16 @@ int main(){
  for(const auto& zone:immutableZones)for(int y=zone.getY();y<zone.getBottom();y+=3)for(int x=zone.getX();x<zone.getRight();x+=3)
   check(snapshot.getPixelAt(x,y)==original.getPixelAt(x,y),"original skin pixel mapping mismatch at "+juce::String(x)+","+juce::String(y));
  auto* firstFader=find(*editor,"s0_level");check(firstFader&&firstFader->getBounds()==juce::Rectangle<int>(224,578,44,342),"fader stays at original position");
- auto* selector=find(*editor,"factoryPresets");check(selector&&selector->isVisible()&&selector->getBounds()==juce::Rectangle<int>(1427,328,119,48),"preset selector is visible in right sidebar");
- int presetPixels=0;for(int y=328;y<376;y+=2)for(int x=1427;x<1546;x+=2)if(snapshot.getPixelAt(x,y)!=original.getPixelAt(x,y))++presetPixels;
- check(presetPixels>50,"PRESETS selector is actually drawn rather than transparent");
+ auto* selector=find(*editor,"factoryPresets");check(selector&&selector->isVisible()&&selector->getY()<54&&selector->getWidth()>1000,"preset selector is visible above the skin");
+ const auto presetImage=selector->createComponentSnapshot(selector->getLocalBounds());
+ int presetPixels=0;for(int y=0;y<presetImage.getHeight();y+=2)for(int x=0;x<presetImage.getWidth();x+=2)if(presetImage.getPixelAt(x,y).getBlue()>140)++presetPixels;
+ check(presetPixels>50,"PRESETS tab label and selection are drawn");
  check(combo->getText().contains("001")&&combo->getText().contains("Vocal"),"visible preset name and number");
  // Every effect title must remain visible after clearing the LCD, including
  // Throw/Space, whose old sprite path inherited the segment brush opacity.
  for(int effect=0;effect<4;++effect){
   select(false,effect);select(true,effect);
-  const auto titled=editor->createComponentSnapshot(editor->getLocalBounds());
+  const auto titled=surface->createComponentSnapshot(surface->getLocalBounds());
   for(const auto zone:{juce::Rectangle<int>(267,54,155,43),juce::Rectangle<int>(885,54,180,43)}){
    int lit=0;for(int y=zone.getY();y<zone.getBottom();++y)for(int x=zone.getX();x<zone.getRight();++x){
     const auto pixel=titled.getPixelAt(x,y);if(std::max(pixel.getRed(),pixel.getBlue())>140)++lit;
@@ -179,10 +181,10 @@ int main(){
    check(lit>200,"effect title must be legible: "+juce::String(effect));
   }
  }
- select(false,1);select(true,3);snapshot=editor->createComponentSnapshot(editor->getLocalBounds());
+ select(false,1);select(true,3);snapshot=surface->createComponentSnapshot(surface->getLocalBounds());
  // Save a separate application screenshot; never modify the immutable source image.
  auto preview=juce::File::getCurrentWorkingDirectory().getChildFile("interface-preview.png");
- preview.deleteFile();if(auto stream=preview.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(snapshot,*stream),"write preview screenshot");}
+ preview.deleteFile();if(auto stream=preview.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds()),*stream),"write preview screenshot");}
  dynamic_cast<juce::Button*>(find(*editor,"delayTab2"))->onClick();dynamic_cast<juce::Button*>(find(*editor,"reverbTab1"))->onClick();
  auto alternate=editor->createComponentSnapshot(editor->getLocalBounds());auto file=juce::File::getCurrentWorkingDirectory().getChildFile("interface-slap-room.png");file.deleteFile();
  if(auto stream=file.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(alternate,*stream),"write Slap/Room screenshot");}

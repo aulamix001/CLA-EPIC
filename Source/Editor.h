@@ -178,6 +178,21 @@ public:
     void paint(juce::Graphics& g) override {
         auto area=getLocalBounds();
         if(kind==knob){
+            if(getWidth()>60){
+                // MOD is drawn once over a clean LCD tile. Rotating a crop of the
+                // reference also rotates its baked-in pointer and highlights.
+                skin::display(g,area,"",colour);
+                const float cx=getWidth()*.5f,cy=getHeight()*.5f;
+                g.setGradientFill(juce::ColourGradient(colour.darker(.65f),cx,cy-31,juce::Colour(0xff101a21),cx,cy+31,false));
+                g.fillEllipse(cx-31,cy-31,62,62);
+                juce::Path track;track.addCentredArc(cx,cy,27,27,0,-2.3561945f,2.3561945f,true);
+                g.setColour(colour.withAlpha(.5f));g.strokePath(track,juce::PathStrokeType(4));
+                g.setGradientFill(juce::ColourGradient(colour.darker(.6f),cx-18,cy-20,juce::Colour(0xff081019),cx+18,cy+20,false));
+                g.fillEllipse(cx-21,cy-21,42,42);g.setColour(colour);g.drawEllipse(cx-21,cy-21,42,42,2);
+                const float angle=-2.3561945f+float(valueToProportionOfLength(getValue()))*4.712389f;
+                g.drawLine(cx,cy,cx+std::sin(angle)*16,cy-std::cos(angle)*16,3);
+                return;
+            }
             const auto sprite=image.getClippedImage(source);
             juce::Path outer;outer.addEllipse(area.toFloat().reduced(1));g.reduceClipRegion(outer);g.drawImageAt(sprite,0,0);
             const float cx=getWidth()*.5f,cy=getHeight()*.5f,radius=getWidth()>60?20.f:19.f;
@@ -243,10 +258,11 @@ class SkinPresets final : public juce::ComboBox {
 public:
     SkinPresets(){for(auto* c:getChildren())c->setVisible(false);setName("200 presets de fabrica");}
     void paint(juce::Graphics& g) override {
-        auto bounds=getLocalBounds();g.setColour(juce::Colour(0xffc5cbd0));g.setFont(14.f);g.drawText("PRESETS",bounds.removeFromTop(18),juce::Justification::centred);
-        g.setColour(juce::Colour(0xff101c24));g.fillRoundedRectangle(bounds.toFloat().reduced(1),3);g.setColour(skin::blue().withAlpha(.7f));g.drawRoundedRectangle(bounds.toFloat().reduced(1),3,1);
-        auto text=bounds.reduced(5,1);text.removeFromRight(12);g.setFont(12.f);g.drawFittedText(getText(),text,juce::Justification::centredLeft,1,.7f);
-        juce::Path arrow;arrow.addTriangle(float(getWidth()-15),30,float(getWidth()-7),30,float(getWidth()-11),35);g.fillPath(arrow);
+        auto bounds=getLocalBounds();g.setColour(juce::Colour(0xff101c24));g.fillRoundedRectangle(bounds.toFloat().reduced(1),4);
+        g.setColour(skin::blue().withAlpha(.8f));g.drawRoundedRectangle(bounds.toFloat().reduced(1),4,1);
+        g.setFont(18.f);g.drawText("PRESETS",bounds.removeFromLeft(115),juce::Justification::centred);
+        auto text=bounds.reduced(10,1);text.removeFromRight(24);g.setFont(18.f);g.drawFittedText(getText(),text,juce::Justification::centredLeft,1,.8f);
+        juce::Path arrow;const float cx=getWidth()-24.f,cy=getHeight()*.5f;arrow.addTriangle(cx-6,cy-3,cx+6,cy-3,cx,cy+4);g.fillPath(arrow);
     }
     void resized() override {juce::ComboBox::resized();for(auto* c:getChildren())c->setVisible(false);}
 };
@@ -424,19 +440,20 @@ class Editor final : public juce::AudioProcessorEditor,private juce::Timer {
     }
 public:
     explicit Editor(Processor& p):AudioProcessorEditor(p),processor(p),surface(p){
-        addAndMakeVisible(surface);surface.setBounds(0,0,1567,1004);
-        surface.addAndMakeVisible(presets);presets.setBounds(1427,328,119,48);presets.setComponentID("factoryPresets");
+        addAndMakeVisible(surface);surface.setComponentID("skinSurface");surface.setBounds(0,0,1567,1004);
+        addAndMakeVisible(presets);presets.setComponentID("factoryPresets");
         surface.addAndMakeVisible(presetLogoShortcut);presetLogoShortcut.setBounds(1427,245,119,79);presetLogoShortcut.setComponentID("presetLogoShortcut");presetLogoShortcut.onClick=[this]{presets.showPopup();};
         for(int i=0;i<p.getNumPrograms();++i)presets.addItem(juce::String(i+1).paddedLeft('0',3)+" "+p.getProgramName(i),i+1);
         presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);displayedProgram=-1;timerCallback();};
-        timerCallback();setSize(1100,705);setResizable(false,false);startTimerHz(10);
+        timerCallback();setSize(1100,759);setResizable(false,false);startTimerHz(10);
     }
     ~Editor() override {stopTimer();presets.hidePopup();juce::PopupMenu::dismissAllActiveMenus();}
     void parentHierarchyChanged() override {compatibleRenderer();}
     void visibilityChanged() override {if(isShowing())compatibleRenderer();}
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colours::black);}
     void resized() override {
-        const float scale=std::min(float(getWidth())/1567.f,float(getHeight())/1004.f);
-        surface.setTransform(juce::AffineTransform::scale(scale).translated((getWidth()-1567*scale)*.5f,(getHeight()-1004*scale)*.5f));
+        presets.setBounds(12,6,getWidth()-24,42);
+        const float scale=std::min(float(getWidth())/1567.f,float(getHeight()-54)/1004.f);
+        surface.setTransform(juce::AffineTransform::scale(scale).translated((getWidth()-1567*scale)*.5f,54+(getHeight()-54-1004*scale)*.5f));
     }
 };
