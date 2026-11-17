@@ -1,0 +1,39 @@
+name: Windows VST3 x64
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - name: Package VST3 bundle
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $bundle = 'build-win/EpicLab_artefacts/Release/VST3/EpicLab.vst3'
+          if (!(Test-Path "$bundle/Contents/x86_64-win/EpicLab.vst3")) { throw 'Windows x64 VST3 binary missing' }
+          Compress-Archive -Path $bundle -DestinationPath dist/EpicLab-Windows-x64-VST3.zip
+          $hash = (Get-FileHash dist/EpicLab-Windows-x64-VST3.zip -Algorithm SHA256).Hash.ToLower()
+          "$hash  EpicLab-Windows-x64-VST3.zip" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EpicLab-Windows-x64-VST3
+          path: dist/*
+          if-no-files-found: error
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes 'VST3 x64 with 100 factory presets. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP; DAW validation and listening tests remain pending.'
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
