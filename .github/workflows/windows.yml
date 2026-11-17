@@ -21,6 +21,7 @@ jobs:
           New-Item -ItemType Directory -Force dist | Out-Null
           $bundle = 'build-win/EpicLab_artefacts/Release/VST3/EpicLab.vst3'
           if (!(Test-Path "$bundle/Contents/x86_64-win/EpicLab.vst3")) { throw 'Windows x64 VST3 binary missing' }
+          Copy-Item build-win/interface-preview.png dist/EpicLab-interface.png
           Compress-Archive -Path $bundle -DestinationPath dist/EpicLab-Windows-x64-VST3.zip
           $hash = (Get-FileHash dist/EpicLab-Windows-x64-VST3.zip -Algorithm SHA256).Hash.ToLower()
           "$hash  EpicLab-Windows-x64-VST3.zip" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
@@ -35,5 +36,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes 'VST3 x64 with live faders, knobs, buttons, routing, meters and 100 fully mapped factory presets. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Automated interface mapping tests included; listening tests in a DAW remain pending.'
+          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt dist/EpicLab-interface.png --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes 'VST3 x64 retaining the original skin geometry, with live controls and 100 mapped factory presets. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Automated interface mapping tests included; listening tests in a DAW remain pending.'
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

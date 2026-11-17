@@ -9,6 +9,7 @@ public:
     juce::AudioProcessorValueTreeState state;
     epic::Engine engine;
     std::atomic<int> currentProgram {0};
+    std::atomic<bool> mixLocked {false};
     std::array<std::atomic<float>,4> meters {};
     using Atomic = std::atomic<float>;
     std::map<juce::String,Atomic*> values;
@@ -113,7 +114,7 @@ public:
                 parameter->endChangeGesture();
             }
         };
-        set("input",s.input);set("output",s.output);set("mix",s.mix);
+        set("input",s.input);set("output",s.output);if(!mixLocked.load())set("mix",s.mix);
         for(int i=0;i<8;++i) {
             const auto& strip=s.strips[i];
             set(id(i,"level"),strip.level);set(id(i,"hp"),strip.hp);set(id(i,"lp"),strip.lp);
@@ -131,8 +132,8 @@ public:
     }
     void changeProgramName(int,const juce::String&) override {}
     bool hasEditor() const override {return true;} juce::AudioProcessorEditor* createEditor() override;
-    void getStateInformation(juce::MemoryBlock& dest) override { auto tree=state.copyState();tree.setProperty("factoryProgram",currentProgram.load(),nullptr);auto xml=tree.createXml();copyXmlToBinary(*xml,dest); }
-    void setStateInformation(const void* data,int size) override { if(auto xml=getXmlFromBinary(data,size)) if(xml->hasTagName("EpicLab")) {auto tree=juce::ValueTree::fromXml(*xml);state.replaceState(tree);currentProgram.store(juce::jlimit(0,99,int(tree.getProperty("factoryProgram",0))));} }
+    void getStateInformation(juce::MemoryBlock& dest) override { auto tree=state.copyState();tree.setProperty("factoryProgram",currentProgram.load(),nullptr);tree.setProperty("mixLocked",mixLocked.load(),nullptr);auto xml=tree.createXml();copyXmlToBinary(*xml,dest); }
+    void setStateInformation(const void* data,int size) override { if(auto xml=getXmlFromBinary(data,size)) if(xml->hasTagName("EpicLab")) {auto tree=juce::ValueTree::fromXml(*xml);state.replaceState(tree);mixLocked.store(bool(tree.getProperty("mixLocked",false)));currentProgram.store(juce::jlimit(0,99,int(tree.getProperty("factoryProgram",0))));} }
 };
 #include "Editor.h"
 juce::AudioProcessorEditor* Processor::createEditor(){return new Editor(*this);}
