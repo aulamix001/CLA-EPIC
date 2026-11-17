@@ -77,7 +77,15 @@ int main(){
   }
  }
  // Edited values survive state restore rather than reloading the factory defaults.
- std::vector<float> saved;for(auto* base:p->getParameters()){base->setValueNotifyingHost(.37f);saved.push_back(base->getValue());}
+ std::vector<float> saved;
+ int editIndex=0;
+ for(auto* base:p->getParameters()){
+  auto* param=dynamic_cast<juce::RangedAudioParameter*>(base);
+  // Boolean switches have only 0/1 states. APVTS correctly canonicalises
+  // fractional boolean host values; compare valid parameter states here.
+  const float edited=param->isBoolean()?float((editIndex++)%2):param->convertTo0to1(param->convertFrom0to1(.37f));
+  param->setValueNotifyingHost(edited);saved.push_back(param->getValue());
+ }
  juce::MemoryBlock block;p->getStateInformation(block);p->setCurrentProgram(0);p->setStateInformation(block.getData(),int(block.getSize()));
  for(int i=0;i<p->getParameters().size();++i)check(std::abs(p->getParameters()[i]->getValue()-saved[size_t(i)])<.0001f,"session restores edited parameters: "+p->getParameters()[i]->getName(100)+" expected="+juce::String(saved[size_t(i)],8)+" actual="+juce::String(p->getParameters()[i]->getValue(),8));
  check(p->getCurrentProgram()==99,"session restores preset index");
