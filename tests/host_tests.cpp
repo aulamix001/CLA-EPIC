@@ -1,6 +1,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <atomic>
 #include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 void check(bool ok,const juce::String& message){if(!ok)throw std::runtime_error(message.toStdString());}
@@ -74,7 +75,29 @@ int main(int argc,char** argv){
   }
   audioThread.join();check(finite.load(),"concurrent host audio remains finite");
   liveWindow.setVisible(false);liveWindow.clearContentComponent();liveEditor.reset();pump(20);
-  plugin->releaseResources();plugin.reset();pump(20);
+  plugin->releaseResources();plugin.reset();pump(250);
+  stage("remove active instances while transport remains running");
+  for(int removal=0;removal<5;++removal){
+   auto removing=formats.createPluginInstance(*types[0],48000,64,error);check(removing!=nullptr,"removal test creates instance");
+   removing->prepareToPlay(48000,64);
+   std::unique_ptr<juce::AudioProcessorEditor> editor(removing->createEditorIfNeeded());check(editor!=nullptr,"removal test editor opens");
+   Window window;window.setContentNonOwned(editor.get(),true);window.centreWithSize(editor->getWidth(),editor->getHeight());window.setVisible(true);pump(75);
+   std::atomic<bool> stop {false};std::mutex graphLock;auto* graphNode=removing.get();
+   std::thread transport([&]{
+    juce::AudioBuffer<float> audio(2,64);juce::MidiBuffer midi;
+    while(!stop.load()){
+     {std::lock_guard<std::mutex> guard(graphLock);if(graphNode){audio.clear();graphNode->processBlock(audio,midi);}}
+     std::this_thread::yield();
+    }
+   });
+   // A DAW detaches the node under its graph lock before destroying it;
+   // the transport itself continues while queued UI callbacks are drained.
+   pump(40);
+   {std::lock_guard<std::mutex> guard(graphLock);graphNode=nullptr;}
+   window.setVisible(false);window.clearContentComponent();editor.reset();
+   removing->releaseResources();removing.reset();pump(250);
+   stop=true;transport.join();std::cout<<"HOST removal "<<removal<<" completed"<<std::endl;
+  }
   stage("PASS real VST3 scan/load, all layouts, buffers/rates, native editor lifecycle, 200 programs and state");
   return 0;
  }catch(const std::exception& error){std::cerr<<"HOST ERROR: "<<error.what()<<std::endl;return 1;}

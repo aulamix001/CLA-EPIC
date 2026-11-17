@@ -3,7 +3,14 @@
 namespace skin {
 inline juce::Colour blue(){return juce::Colour(0xff8ddfff);}
 inline juce::Colour red(){return juce::Colour(0xffff492a);}
-inline juce::Image original(){return juce::ImageCache::getFromMemory(BinaryData::imagem_png,BinaryData::imagem_pngSize);}
+inline juce::Image original(){
+    // Retain only CPU pixels. Native/Direct2D images must not survive until DLL unload.
+    static const auto cpuImage=[] {
+        auto decoded=juce::ImageFileFormat::loadFrom(BinaryData::imagem_png,size_t(BinaryData::imagem_pngSize));
+        return juce::SoftwareImageType{}.convert(decoded);
+    }();
+    return cpuImage;
+}
 inline int stripX(int i){return i<4?174+i*150:800+(i-4)*150;}
 inline void digital(juce::Graphics& g,juce::String text,juce::Rectangle<float> area,juce::Colour colour){
     // Fourteen-segment strokes match the display language instead of native widgets.
