@@ -193,8 +193,9 @@ public:
             button(buttons,id("mute"),{x+81,537,37,28},{255,537,37,28},colour);
             button(buttons,id("mute"),{32+(i/4)*57,275+(i%4)*43,51,36},{32+(i/4)*57,275+(i%4)*43,51,36},colour);
             if(i<4){
-                for(int send=0;send<4;++send)slider(common,id(("send"+juce::String(send)).toRawUTF8()),SkinSlider::route,{194+i*147+send*33,288,26,25},b,{},0,juce::String::charToString(juce::juce_wchar('A'+send)));
-                button(buttons,id("direct"),{193+i*147,319,56,25},{193,319,56,25},b);
+                const int routeX[]={190,337,485,632};
+                for(int send=0;send<4;++send)slider(common,id(("send"+juce::String(send)).toRawUTF8()),SkinSlider::route,{routeX[i]+send*33,288,25,26},b,{},0,juce::String::charToString(juce::juce_wchar('A'+send)));
+                button(buttons,id("direct"),{routeX[i],319,57,26},{190,319,57,26},b);
             }
         }
         slider(common,"input",SkinSlider::fader,{68,578,44,342},b,{72,717,36,64},116);
@@ -228,7 +229,7 @@ public:
         skin::display(g,{589,96,68,29},juce::String(processor.value(Processor::id(delayIndex,"mod")),1),b);
         skin::display(g,{1215,96,68,29},juce::String(processor.value(Processor::id(reverbIndex+4,"mod")),1),r);
         skin::display(g,{1214,191,100,38},juce::String(processor.value(Processor::id(reverbIndex+4,"decay")),2),r);
-        for(int i=0;i<4;++i){skin::display(g,{252+i*147,323,54,18},processor.value(Processor::id(i,"direct"))>.5f?"0.0":"--",b);}
+        for(int i=0;i<4;++i){const int routeX[]={190,337,485,632};skin::display(g,{routeX[i]+58,322,63,21},processor.value(Processor::id(i,"direct"))>.5f?"0.0":"--",b);}
         if(delayIndex!=1){g.setColour(juce::Colour(0xff081820));g.fillRect(266,112,145,24);}
         if(delayIndex>=2){
             skin::display(g,{495,145,105,32},delayIndex==2?"VSO":"WIDTH",b);
@@ -245,7 +246,7 @@ public:
         for(int side=0;side<2;++side)for(int ch=0;ch<2;++ch)for(int led=0;led<7;++led){
             const float db=juce::Decibels::gainToDecibels(meterValues[size_t(side*2+ch)],-60.f);const bool on=db>=-36+led*6;
             g.setColour(on?(led>4?juce::Colours::orangered:juce::Colours::limegreen):juce::Colour(0xff242620));
-            g.fillEllipse(float((side==0?76:1448)+ch*29),float(171-led*22),11.f,11.f);
+            g.fillEllipse(side==0?78.f+ch*28.5f:1449.f+ch*30.f,170.f-led*22.3f,13.f,14.f);
         }
         if(processor.mixLocked.load()){g.setColour(b.withAlpha(.6f));g.drawRoundedRectangle(1510,451,32,33,2,2);}
     }
@@ -264,7 +265,7 @@ public:
         surface.addAndMakeVisible(presets);presets.setBounds(1427,245,119,79);presets.setComponentID("factoryPresets");
         for(int i=0;i<100;++i)presets.addItem(p.getProgramName(i),i+1);
         presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);displayedProgram=-1;timerCallback();};
-        timerCallback();setSize(1100,705);setResizable(true,true);setResizeLimits(840,540,1882,1210);
+        timerCallback();setSize(1100,705);setResizable(true,false);setResizeLimits(840,540,1882,1210);
         if(auto* constrainer=getConstrainer())constrainer->setFixedAspectRatio(1567.0/1004.0);startTimerHz(10);
     }
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colours::black);}
