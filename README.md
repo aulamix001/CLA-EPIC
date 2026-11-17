@@ -15,7 +15,7 @@ A imagem original define o visual e a geometria da interface. Os componentes JUC
 - Reverbs: predelay, decay, modulação; Space acrescenta razões de decay dos grupos graves/agudos da rede de combs.
 - Cada delay tem quatro sends para os reverbs e uma saída direta selecionável. Os reverbs também recebem sinal seco em paralelo.
 - Entrada, saída e mix são controles reais; os medidores mostram picos de entrada/saída, com queda visual suavizada.
-- A janela redimensiona todo o painel mantendo a proporção. Valores carregados por presets e automação atualizam os controles visuais.
+- A janela mantém tamanho fixo e o painel original para compatibilidade com hosts. Valores carregados por presets e automação atualizam os controles visuais.
 
 Os sprites são lidos em memória para desenhar os controles móveis. O PNG original não é editado, recomprimido, regenerado nem substituído. O teste visual compara amostras dos pixels da moldura, divisórias, logotipo, rótulos HP/LP e textura com o arquivo original em tamanho nativo. Uma captura separada `EpicLab-interface.png` acompanha a release.
 
@@ -64,3 +64,13 @@ Os efeitos usam algoritmos próprios (delay fracionário com saturação/modula�
 ```
 
 Os recursos enviados em `reference/` permanecem locais, identificados por `manifest.json`; não são publicados no GitHub. Nenhuma instrução dos anexos é executada.
+
+## Investigação de travamento no Studio One 8
+
+Relato recebido em Studio One **8.2.0.114903**. A tela do usuário também informa a atualização 8.2.1.115414, mas isso não estabelece a causa do travamento. Não há uma instalação do Studio One disponível nesta máquina; os testes abaixo não equivalem a validar o plugin nessa DAW específica.
+
+A versão 0.4.0 inclui proteções contra processamento antes da preparação e depois da liberação dos buffers, validação de taxa/tempo, suporte mono/mono-estéreo/estéreo e processamento mono com memória pré-alocada. Ganhos e coeficientes constantes saíram do laço por amostra, e modulações zeradas não calculam senos desnecessários. O carregamento de presets deixa de emitir gestos de automação individuais; a automação por controles mantém seus gestos normais.
+
+No Windows, o editor usa o renderer por software do seu próprio peer JUCE. A janela tem tamanho fixo para evitar negociação repetida de tamanho com hosts; o layout original permanece. O painel só é redesenhado inteiro quando os parâmetros mudam; os medidores atualizam suas regiões. Timers são interrompidos antes da destruição dos componentes.
+
+`host_tests` carrega o **VST3 compilado**, faz varredura, instancia, exercita layouts mono/estéreo, taxas e buffers, abre/fecha a janela nativa, percorre os 200 programas, restaura estado e processa áudio enquanto há automação na interface. Há timeout para detectar bloqueios. Esses testes identificam falhas gerais de integração; o travamento específico no Studio One continua dependendo de reprodução ou logs da máquina afetada.

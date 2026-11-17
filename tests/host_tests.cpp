@@ -16,7 +16,7 @@ int main(int argc,char** argv){
   juce::ScopedJuceInitialiser_GUI gui;check(argc==2,"VST3 path required");
   auto binary=juce::File(juce::String::fromUTF8(argv[1]));check(binary.existsAsFile(),"compiled DLL exists");
   const auto bundle=binary.getParentDirectory().getParentDirectory().getParentDirectory();
-  juce::AudioPluginFormatManager formats;formats.addFormat(std::make_unique<juce::VST3PluginFormat>());
+  juce::AudioPluginFormatManager formats;formats.addFormat(new juce::VST3PluginFormat());
   juce::OwnedArray<juce::PluginDescription> types;
   stage("scan real VST3 bundle");formats.getFormat(0)->findAllTypesForFile(types,bundle.getFullPathName());check(types.size()>0,"scan must discover a plugin");
   stage("create real VST3 instance");juce::String error;
@@ -54,6 +54,11 @@ int main(int argc,char** argv){
    window.setVisible(false);window.clearContentComponent();editor.reset();pump(30);
   }
   stage("concurrent audio processing and UI automation");
+  std::unique_ptr<juce::AudioProcessorEditor> liveEditor(plugin->createEditorIfNeeded());check(liveEditor!=nullptr,"editor reopens for concurrent automation");
+  Window liveWindow;liveWindow.setContentNonOwned(liveEditor.get(),true);liveWindow.centreWithSize(liveEditor->getWidth(),liveEditor->getHeight());liveWindow.setVisible(true);pump(50);
+  juce::AudioProcessorParameter* mix=nullptr;
+  for(auto* parameter:plugin->getParameters())if(parameter->getName(128).containsIgnoreCase("mix")){mix=parameter;break;}
+  check(mix!=nullptr,"host exposes Mix automation");
   std::atomic<bool> done {false},finite {true};
   std::thread audioThread([&]{
    juce::AudioBuffer<float> audio(2,64);juce::MidiBuffer midi;
@@ -61,8 +66,14 @@ int main(int argc,char** argv){
     for(int ch=0;ch<2;++ch)for(int i=0;i<64;++i)if(!std::isfinite(audio.getSample(ch,i)))finite=false;}
    done=true;
   });
-  while(!done.load()){pump(2);}
+  int automationStep=0;
+  while(!done.load()){
+   mix->beginChangeGesture();mix->setValueNotifyingHost(float(automationStep%100)/100.f);mix->endChangeGesture();
+   if(automationStep%4==0)plugin->setCurrentProgram(automationStep%200);
+   ++automationStep;pump(2);
+  }
   audioThread.join();check(finite.load(),"concurrent host audio remains finite");
+  liveWindow.setVisible(false);liveWindow.clearContentComponent();liveEditor.reset();pump(20);
   plugin->releaseResources();plugin.reset();pump(20);
   stage("PASS real VST3 scan/load, all layouts, buffers/rates, native editor lifecycle, 200 programs and state");
   return 0;
