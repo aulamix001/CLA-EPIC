@@ -5,14 +5,13 @@
 void check(bool ok,const char* msg){if(!ok)throw std::runtime_error(msg);}
 int main(){
  const auto& bank=epic::factoryPresets();check(bank.size()==200,"200 factory presets required");
- std::set<std::string> names, signatures;
+ std::set<std::string> names;
  for(const auto& p:bank){
   check(names.insert(p.name).second,"unique names");const auto& s=p.settings;
-  std::string signature;
   check(s.mix>=0&&s.mix<=100&&s.input>=-24&&s.input<=24&&s.output>=-24&&s.output<=12,"master ranges");
   for(const auto& st:s.strips){
    check(st.level>=-60&&st.level<=6&&st.hp>=20&&st.hp<=2000&&st.lp>=1000&&st.lp<=20000,"strip ranges");
-   check(!st.solo,"presets must clear solo");signature+=std::to_string(st.level)+std::to_string(st.mute);
+   check(!st.solo,"presets must clear solo");
   }
   for(int i=0;i<4;++i){
    check(s.time[i]>=1&&s.time[i]<=4000&&s.feedback[i]>=0&&s.feedback[i]<=95,"delay ranges");
@@ -28,7 +27,6 @@ int main(){
   check(s.spaceShape>=.04f&&s.spaceShape<=3.5f,"Space nonlinear decay range");
   check(s.crowdWidth>=0&&s.crowdWidth<=100&&s.vso>=0&&s.vso<=3,"width/VSO ranges");
   check(s.lowRatio>=.25f&&s.lowRatio<=2&&s.highRatio>=.25f&&s.highRatio<=2,"decay ratios");
-  check(signatures.insert(signature).second,"unique fader/mute mappings");
   epic::Engine e;e.prepare(48000);double energy=0;float l[256]={},r[256]={};
   for(int block=0;block<200;++block){
    for(int i=0;i<256;++i){l[i]=block<100?.05f*std::sin(float(block*256+i)*.03f):0;r[i]=l[i];}

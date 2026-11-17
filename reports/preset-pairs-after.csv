@@ -1,0 +1,901 @@
+first,second,output_correlation
+"Vocal / Close","Vocal / Slap",0.833659
+"Vocal / Close","Vocal / Eighth",0.82253
+"Vocal / Close","Vocal / Quarter",0.809869
+"Vocal / Close","Vocal / Dotted",0.790703
+"Vocal / Close","Vocal / Wide",0.770023
+"Vocal / Close","Vocal / Dark",0.853281
+"Vocal / Close","Vocal / Bright",0.74711
+"Vocal / Close","Vocal / Deep",0.594709
+"Vocal / Close","Vocal / Wash",0.431167
+"Vocal / Slap","Vocal / Eighth",0.777558
+"Vocal / Slap","Vocal / Quarter",0.765553
+"Vocal / Slap","Vocal / Dotted",0.747431
+"Vocal / Slap","Vocal / Wide",0.752445
+"Vocal / Slap","Vocal / Dark",0.806816
+"Vocal / Slap","Vocal / Bright",0.706044
+"Vocal / Slap","Vocal / Deep",0.564977
+"Vocal / Slap","Vocal / Wash",0.407073
+"Vocal / Eighth","Vocal / Quarter",0.813944
+"Vocal / Eighth","Vocal / Dotted",0.747839
+"Vocal / Eighth","Vocal / Wide",0.729033
+"Vocal / Eighth","Vocal / Dark",0.79622
+"Vocal / Eighth","Vocal / Bright",0.696966
+"Vocal / Eighth","Vocal / Deep",0.554119
+"Vocal / Eighth","Vocal / Wash",0.401942
+"Vocal / Quarter","Vocal / Dotted",0.731901
+"Vocal / Quarter","Vocal / Wide",0.71772
+"Vocal / Quarter","Vocal / Dark",0.785093
+"Vocal / Quarter","Vocal / Bright",0.687638
+"Vocal / Quarter","Vocal / Deep",0.546129
+"Vocal / Quarter","Vocal / Wash",0.398607
+"Vocal / Dotted","Vocal / Wide",0.700776
+"Vocal / Dotted","Vocal / Dark",0.765021
+"Vocal / Dotted","Vocal / Bright",0.669555
+"Vocal / Dotted","Vocal / Deep",0.53239
+"Vocal / Dotted","Vocal / Wash",0.383263
+"Vocal / Wide","Vocal / Dark",0.758025
+"Vocal / Wide","Vocal / Bright",0.664686
+"Vocal / Wide","Vocal / Deep",0.528348
+"Vocal / Wide","Vocal / Wash",0.38455
+"Vocal / Dark","Vocal / Bright",0.930292
+"Vocal / Dark","Vocal / Deep",0.57342
+"Vocal / Dark","Vocal / Wash",0.481414
+"Vocal / Bright","Vocal / Deep",0.503753
+"Vocal / Bright","Vocal / Wash",0.48364
+"Vocal / Deep","Vocal / Wash",0.282649
+"Guitar / Close","Guitar / Slap",0.867275
+"Guitar / Close","Guitar / Eighth",0.857336
+"Guitar / Close","Guitar / Quarter",0.844538
+"Guitar / Close","Guitar / Dotted",0.826308
+"Guitar / Close","Guitar / Wide",0.820258
+"Guitar / Close","Guitar / Dark",0.878795
+"Guitar / Close","Guitar / Bright",0.782395
+"Guitar / Close","Guitar / Deep",0.643412
+"Guitar / Close","Guitar / Wash",0.475384
+"Guitar / Slap","Guitar / Eighth",0.817126
+"Guitar / Slap","Guitar / Quarter",0.804919
+"Guitar / Slap","Guitar / Dotted",0.787548
+"Guitar / Slap","Guitar / Wide",0.780225
+"Guitar / Slap","Guitar / Dark",0.838375
+"Guitar / Slap","Guitar / Bright",0.745216
+"Guitar / Slap","Guitar / Deep",0.607326
+"Guitar / Slap","Guitar / Wash",0.459396
+"Guitar / Eighth","Guitar / Quarter",0.844522
+"Guitar / Eighth","Guitar / Dotted",0.787011
+"Guitar / Eighth","Guitar / Wide",0.771938
+"Guitar / Eighth","Guitar / Dark",0.82907
+"Guitar / Eighth","Guitar / Bright",0.738208
+"Guitar / Eighth","Guitar / Deep",0.604955
+"Guitar / Eighth","Guitar / Wash",0.44474
+"Guitar / Quarter","Guitar / Dotted",0.771542
+"Guitar / Quarter","Guitar / Wide",0.760333
+"Guitar / Quarter","Guitar / Dark",0.815708
+"Guitar / Quarter","Guitar / Bright",0.725847
+"Guitar / Quarter","Guitar / Deep",0.596938
+"Guitar / Quarter","Guitar / Wash",0.439197
+"Guitar / Dotted","Guitar / Wide",0.743937
+"Guitar / Dotted","Guitar / Dark",0.798209
+"Guitar / Dotted","Guitar / Bright",0.710312
+"Guitar / Dotted","Guitar / Deep",0.582514
+"Guitar / Dotted","Guitar / Wash",0.432529
+"Guitar / Wide","Guitar / Dark",0.790848
+"Guitar / Wide","Guitar / Bright",0.703537
+"Guitar / Wide","Guitar / Deep",0.578444
+"Guitar / Wide","Guitar / Wash",0.426427
+"Guitar / Dark","Guitar / Bright",0.93794
+"Guitar / Dark","Guitar / Deep",0.613881
+"Guitar / Dark","Guitar / Wash",0.515647
+"Guitar / Bright","Guitar / Deep",0.543354
+"Guitar / Bright","Guitar / Wash",0.506122
+"Guitar / Deep","Guitar / Wash",0.32389
+"Piano / Close","Piano / Slap",0.797746
+"Piano / Close","Piano / Eighth",0.790079
+"Piano / Close","Piano / Quarter",0.776666
+"Piano / Close","Piano / Dotted",0.756378
+"Piano / Close","Piano / Wide",0.73416
+"Piano / Close","Piano / Dark",0.802583
+"Piano / Close","Piano / Bright",0.673386
+"Piano / Close","Piano / Deep",0.483754
+"Piano / Close","Piano / Wash",0.373001
+"Piano / Slap","Piano / Eighth",0.745942
+"Piano / Slap","Piano / Quarter",0.733081
+"Piano / Slap","Piano / Dotted",0.713834
+"Piano / Slap","Piano / Wide",0.705265
+"Piano / Slap","Piano / Dark",0.761139
+"Piano / Slap","Piano / Bright",0.638989
+"Piano / Slap","Piano / Deep",0.454351
+"Piano / Slap","Piano / Wash",0.355677
+"Piano / Eighth","Piano / Quarter",0.792263
+"Piano / Eighth","Piano / Dotted",0.719283
+"Piano / Eighth","Piano / Wide",0.698227
+"Piano / Eighth","Piano / Dark",0.752503
+"Piano / Eighth","Piano / Bright",0.631687
+"Piano / Eighth","Piano / Deep",0.453978
+"Piano / Eighth","Piano / Wash",0.347925
+"Piano / Quarter","Piano / Dotted",0.702061
+"Piano / Quarter","Piano / Wide",0.68614
+"Piano / Quarter","Piano / Dark",0.739715
+"Piano / Quarter","Piano / Bright",0.620458
+"Piano / Quarter","Piano / Deep",0.437503
+"Piano / Quarter","Piano / Wash",0.345295
+"Piano / Dotted","Piano / Wide",0.668267
+"Piano / Dotted","Piano / Dark",0.715236
+"Piano / Dotted","Piano / Bright",0.59843
+"Piano / Dotted","Piano / Deep",0.434795
+"Piano / Dotted","Piano / Wash",0.346415
+"Piano / Wide","Piano / Dark",0.744767
+"Piano / Wide","Piano / Bright",0.650763
+"Piano / Wide","Piano / Deep",0.423861
+"Piano / Wide","Piano / Wash",0.386276
+"Piano / Dark","Piano / Bright",0.911472
+"Piano / Dark","Piano / Deep",0.447049
+"Piano / Dark","Piano / Wash",0.449868
+"Piano / Bright","Piano / Deep",0.374959
+"Piano / Bright","Piano / Wash",0.437481
+"Piano / Deep","Piano / Wash",0.19829
+"Drums / Close","Drums / Slap",0.892524
+"Drums / Close","Drums / Eighth",0.88703
+"Drums / Close","Drums / Quarter",0.876337
+"Drums / Close","Drums / Dotted",0.860595
+"Drums / Close","Drums / Wide",0.873879
+"Drums / Close","Drums / Dark",0.906287
+"Drums / Close","Drums / Bright",0.784827
+"Drums / Close","Drums / Deep",0.721912
+"Drums / Close","Drums / Wash",0.53431
+"Drums / Slap","Drums / Eighth",0.842621
+"Drums / Slap","Drums / Quarter",0.832461
+"Drums / Slap","Drums / Dotted",0.817506
+"Drums / Slap","Drums / Wide",0.831374
+"Drums / Slap","Drums / Dark",0.859311
+"Drums / Slap","Drums / Bright",0.744117
+"Drums / Slap","Drums / Deep",0.686424
+"Drums / Slap","Drums / Wash",0.508287
+"Drums / Eighth","Drums / Quarter",0.868684
+"Drums / Eighth","Drums / Dotted",0.819846
+"Drums / Eighth","Drums / Wide",0.82668
+"Drums / Eighth","Drums / Dark",0.855799
+"Drums / Eighth","Drums / Bright",0.741318
+"Drums / Eighth","Drums / Deep",0.679616
+"Drums / Eighth","Drums / Wash",0.504936
+"Drums / Quarter","Drums / Dotted",0.806787
+"Drums / Quarter","Drums / Wide",0.816687
+"Drums / Quarter","Drums / Dark",0.845316
+"Drums / Quarter","Drums / Bright",0.7322
+"Drums / Quarter","Drums / Deep",0.672996
+"Drums / Quarter","Drums / Wash",0.498144
+"Drums / Dotted","Drums / Wide",0.802013
+"Drums / Dotted","Drums / Dark",0.830063
+"Drums / Dotted","Drums / Bright",0.719175
+"Drums / Dotted","Drums / Deep",0.661227
+"Drums / Dotted","Drums / Wash",0.485359
+"Drums / Wide","Drums / Dark",0.843386
+"Drums / Wide","Drums / Bright",0.730711
+"Drums / Wide","Drums / Deep",0.671226
+"Drums / Wide","Drums / Wash",0.496089
+"Drums / Dark","Drums / Bright",0.925625
+"Drums / Dark","Drums / Deep",0.706474
+"Drums / Dark","Drums / Wash",0.551431
+"Drums / Bright","Drums / Deep",0.623158
+"Drums / Bright","Drums / Wash",0.511508
+"Drums / Deep","Drums / Wash",0.397563
+"Snare / Close","Snare / Slap",0.867429
+"Snare / Close","Snare / Eighth",0.863348
+"Snare / Close","Snare / Quarter",0.852743
+"Snare / Close","Snare / Dotted",0.836304
+"Snare / Close","Snare / Wide",0.819296
+"Snare / Close","Snare / Dark",0.891631
+"Snare / Close","Snare / Bright",0.779305
+"Snare / Close","Snare / Deep",0.666088
+"Snare / Close","Snare / Wash",0.496668
+"Snare / Slap","Snare / Eighth",0.816122
+"Snare / Slap","Snare / Quarter",0.806077
+"Snare / Slap","Snare / Dotted",0.790538
+"Snare / Slap","Snare / Wide",0.776137
+"Snare / Slap","Snare / Dark",0.842122
+"Snare / Slap","Snare / Bright",0.735812
+"Snare / Slap","Snare / Deep",0.628428
+"Snare / Slap","Snare / Wash",0.468936
+"Snare / Eighth","Snare / Quarter",0.848626
+"Snare / Eighth","Snare / Dotted",0.794036
+"Snare / Eighth","Snare / Wide",0.770198
+"Snare / Eighth","Snare / Dark",0.888928
+"Snare / Eighth","Snare / Bright",0.840802
+"Snare / Eighth","Snare / Deep",0.624885
+"Snare / Eighth","Snare / Wash",0.463568
+"Snare / Quarter","Snare / Dotted",0.780603
+"Snare / Quarter","Snare / Wide",0.760665
+"Snare / Quarter","Snare / Dark",0.844165
+"Snare / Quarter","Snare / Bright",0.758996
+"Snare / Quarter","Snare / Deep",0.617414
+"Snare / Quarter","Snare / Wash",0.459311
+"Snare / Dotted","Snare / Wide",0.745989
+"Snare / Dotted","Snare / Dark",0.813593
+"Snare / Dotted","Snare / Bright",0.713561
+"Snare / Dotted","Snare / Deep",0.604402
+"Snare / Dotted","Snare / Wash",0.449654
+"Snare / Wide","Snare / Dark",0.795337
+"Snare / Wide","Snare / Bright",0.694817
+"Snare / Wide","Snare / Deep",0.593689
+"Snare / Wide","Snare / Wash",0.441911
+"Snare / Dark","Snare / Bright",0.929403
+"Snare / Dark","Snare / Deep",0.644402
+"Snare / Dark","Snare / Wash",0.529475
+"Snare / Bright","Snare / Deep",0.562821
+"Snare / Bright","Snare / Wash",0.504998
+"Snare / Deep","Snare / Wash",0.346447
+"Synth / Close","Synth / Slap",0.726652
+"Synth / Close","Synth / Eighth",0.707402
+"Synth / Close","Synth / Quarter",0.693007
+"Synth / Close","Synth / Dotted",0.669857
+"Synth / Close","Synth / Wide",0.668047
+"Synth / Close","Synth / Dark",0.724363
+"Synth / Close","Synth / Bright",0.580505
+"Synth / Close","Synth / Deep",0.412549
+"Synth / Close","Synth / Wash",0.270272
+"Synth / Slap","Synth / Eighth",0.668946
+"Synth / Slap","Synth / Quarter",0.65352
+"Synth / Slap","Synth / Dotted",0.63174
+"Synth / Slap","Synth / Wide",0.637218
+"Synth / Slap","Synth / Dark",0.683135
+"Synth / Slap","Synth / Bright",0.547309
+"Synth / Slap","Synth / Deep",0.39114
+"Synth / Slap","Synth / Wash",0.251984
+"Synth / Eighth","Synth / Quarter",0.727157
+"Synth / Eighth","Synth / Dotted",0.634844
+"Synth / Eighth","Synth / Wide",0.624707
+"Synth / Eighth","Synth / Dark",0.696461
+"Synth / Eighth","Synth / Bright",0.579923
+"Synth / Eighth","Synth / Deep",0.384026
+"Synth / Eighth","Synth / Wash",0.248043
+"Synth / Quarter","Synth / Dotted",0.614853
+"Synth / Quarter","Synth / Wide",0.611764
+"Synth / Quarter","Synth / Dark",0.763572
+"Synth / Quarter","Synth / Bright",0.694837
+"Synth / Quarter","Synth / Deep",0.368296
+"Synth / Quarter","Synth / Wash",0.245941
+"Synth / Dotted","Synth / Wide",0.591106
+"Synth / Dotted","Synth / Dark",0.637508
+"Synth / Dotted","Synth / Bright",0.510278
+"Synth / Dotted","Synth / Deep",0.361069
+"Synth / Dotted","Synth / Wash",0.237369
+"Synth / Wide","Synth / Dark",0.64078
+"Synth / Wide","Synth / Bright",0.513243
+"Synth / Wide","Synth / Deep",0.358577
+"Synth / Wide","Synth / Wash",0.241195
+"Synth / Dark","Synth / Bright",0.893219
+"Synth / Dark","Synth / Deep",0.383746
+"Synth / Dark","Synth / Wash",0.363307
+"Synth / Bright","Synth / Deep",0.311024
+"Synth / Bright","Synth / Wash",0.35937
+"Synth / Deep","Synth / Wash",0.138296
+"Ambient / Close","Ambient / Slap",0.661087
+"Ambient / Close","Ambient / Eighth",0.648618
+"Ambient / Close","Ambient / Quarter",0.632551
+"Ambient / Close","Ambient / Dotted",0.608513
+"Ambient / Close","Ambient / Wide",0.58395
+"Ambient / Close","Ambient / Dark",0.66859
+"Ambient / Close","Ambient / Bright",0.53295
+"Ambient / Close","Ambient / Deep",0.343366
+"Ambient / Close","Ambient / Wash",0.213725
+"Ambient / Slap","Ambient / Eighth",0.6413
+"Ambient / Slap","Ambient / Quarter",0.598372
+"Ambient / Slap","Ambient / Dotted",0.576613
+"Ambient / Slap","Ambient / Wide",0.552989
+"Ambient / Slap","Ambient / Dark",0.631638
+"Ambient / Slap","Ambient / Bright",0.502477
+"Ambient / Slap","Ambient / Deep",0.320897
+"Ambient / Slap","Ambient / Wash",0.203392
+"Ambient / Eighth","Ambient / Quarter",0.68462
+"Ambient / Eighth","Ambient / Dotted",0.580303
+"Ambient / Eighth","Ambient / Wide",0.542049
+"Ambient / Eighth","Ambient / Dark",0.617265
+"Ambient / Eighth","Ambient / Bright",0.488075
+"Ambient / Eighth","Ambient / Deep",0.315257
+"Ambient / Eighth","Ambient / Wash",0.18816
+"Ambient / Quarter","Ambient / Dotted",0.559008
+"Ambient / Quarter","Ambient / Wide",0.529192
+"Ambient / Quarter","Ambient / Dark",0.606314
+"Ambient / Quarter","Ambient / Bright",0.483636
+"Ambient / Quarter","Ambient / Deep",0.308409
+"Ambient / Quarter","Ambient / Wash",0.192328
+"Ambient / Dotted","Ambient / Wide",0.50881
+"Ambient / Dotted","Ambient / Dark",0.578788
+"Ambient / Dotted","Ambient / Bright",0.459678
+"Ambient / Dotted","Ambient / Deep",0.295788
+"Ambient / Dotted","Ambient / Wash",0.184966
+"Ambient / Wide","Ambient / Dark",0.558746
+"Ambient / Wide","Ambient / Bright",0.444537
+"Ambient / Wide","Ambient / Deep",0.287111
+"Ambient / Wide","Ambient / Wash",0.178442
+"Ambient / Dark","Ambient / Bright",0.889858
+"Ambient / Dark","Ambient / Deep",0.330291
+"Ambient / Dark","Ambient / Wash",0.339356
+"Ambient / Bright","Ambient / Deep",0.268966
+"Ambient / Bright","Ambient / Wash",0.342071
+"Ambient / Deep","Ambient / Wash",0.130919
+"Bass / Close","Bass / Slap",0.916341
+"Bass / Close","Bass / Eighth",0.911894
+"Bass / Close","Bass / Quarter",0.901561
+"Bass / Close","Bass / Dotted",0.887388
+"Bass / Close","Bass / Wide",0.878307
+"Bass / Close","Bass / Dark",0.91892
+"Bass / Close","Bass / Bright",0.804472
+"Bass / Close","Bass / Deep",0.763759
+"Bass / Close","Bass / Wash",0.58259
+"Bass / Slap","Bass / Eighth",0.879587
+"Bass / Slap","Bass / Quarter",0.869618
+"Bass / Slap","Bass / Dotted",0.855947
+"Bass / Slap","Bass / Wide",0.849611
+"Bass / Slap","Bass / Dark",0.884945
+"Bass / Slap","Bass / Bright",0.774568
+"Bass / Slap","Bass / Deep",0.736961
+"Bass / Slap","Bass / Wash",0.56047
+"Bass / Eighth","Bass / Quarter",0.897149
+"Bass / Eighth","Bass / Dotted",0.856892
+"Bass / Eighth","Bass / Wide",0.844623
+"Bass / Eighth","Bass / Dark",0.881018
+"Bass / Eighth","Bass / Bright",0.771653
+"Bass / Eighth","Bass / Deep",0.733281
+"Bass / Eighth","Bass / Wash",0.558744
+"Bass / Quarter","Bass / Dotted",0.844693
+"Bass / Quarter","Bass / Wide",0.835022
+"Bass / Quarter","Bass / Dark",0.87221
+"Bass / Quarter","Bass / Bright",0.764179
+"Bass / Quarter","Bass / Deep",0.72554
+"Bass / Quarter","Bass / Wash",0.553025
+"Bass / Dotted","Bass / Wide",0.821888
+"Bass / Dotted","Bass / Dark",0.857733
+"Bass / Dotted","Bass / Bright",0.750816
+"Bass / Dotted","Bass / Deep",0.712963
+"Bass / Dotted","Bass / Wash",0.543943
+"Bass / Wide","Bass / Dark",0.8514
+"Bass / Wide","Bass / Bright",0.746121
+"Bass / Wide","Bass / Deep",0.707456
+"Bass / Wide","Bass / Wash",0.541076
+"Bass / Dark","Bass / Bright",0.930346
+"Bass / Dark","Bass / Deep",0.736092
+"Bass / Dark","Bass / Wash",0.600316
+"Bass / Bright","Bass / Deep",0.642644
+"Bass / Bright","Bass / Wash",0.554061
+"Bass / Deep","Bass / Wash",0.457902
+"Bus / Close","Bus / Slap",0.874186
+"Bus / Close","Bus / Eighth",0.865138
+"Bus / Close","Bus / Quarter",0.854031
+"Bus / Close","Bus / Dotted",0.837414
+"Bus / Close","Bus / Wide",0.835637
+"Bus / Close","Bus / Dark",0.888196
+"Bus / Close","Bus / Bright",0.783402
+"Bus / Close","Bus / Deep",0.652152
+"Bus / Close","Bus / Wash",0.503319
+"Bus / Slap","Bus / Eighth",0.827323
+"Bus / Slap","Bus / Quarter",0.816789
+"Bus / Slap","Bus / Dotted",0.800897
+"Bus / Slap","Bus / Wide",0.797791
+"Bus / Slap","Bus / Dark",0.856541
+"Bus / Slap","Bus / Bright",0.765495
+"Bus / Slap","Bus / Deep",0.62633
+"Bus / Slap","Bus / Wash",0.501347
+"Bus / Eighth","Bus / Quarter",0.853842
+"Bus / Eighth","Bus / Dotted",0.800321
+"Bus / Eighth","Bus / Wide",0.788797
+"Bus / Eighth","Bus / Dark",0.839574
+"Bus / Eighth","Bus / Bright",0.740447
+"Bus / Eighth","Bus / Deep",0.613967
+"Bus / Eighth","Bus / Wash",0.474661
+"Bus / Quarter","Bus / Dotted",0.786568
+"Bus / Quarter","Bus / Wide",0.778638
+"Bus / Quarter","Bus / Dark",0.828037
+"Bus / Quarter","Bus / Bright",0.730566
+"Bus / Quarter","Bus / Deep",0.60877
+"Bus / Quarter","Bus / Wash",0.467354
+"Bus / Dotted","Bus / Wide",0.7635
+"Bus / Dotted","Bus / Dark",0.811613
+"Bus / Dotted","Bus / Bright",0.715794
+"Bus / Dotted","Bus / Deep",0.599272
+"Bus / Dotted","Bus / Wash",0.455483
+"Bus / Wide","Bus / Dark",0.807334
+"Bus / Wide","Bus / Bright",0.712454
+"Bus / Wide","Bus / Deep",0.594308
+"Bus / Wide","Bus / Wash",0.457293
+"Bus / Dark","Bus / Bright",0.933794
+"Bus / Dark","Bus / Deep",0.628717
+"Bus / Dark","Bus / Wash",0.543449
+"Bus / Bright","Bus / Deep",0.554892
+"Bus / Bright","Bus / Wash",0.514144
+"Bus / Deep","Bus / Wash",0.345323
+"FX / Close","FX / Slap",0.701234
+"FX / Close","FX / Eighth",0.689167
+"FX / Close","FX / Quarter",0.67495
+"FX / Close","FX / Dotted",0.652163
+"FX / Close","FX / Wide",0.671087
+"FX / Close","FX / Dark",0.715105
+"FX / Close","FX / Bright",0.585249
+"FX / Close","FX / Deep",0.379421
+"FX / Close","FX / Wash",0.250008
+"FX / Slap","FX / Eighth",0.647184
+"FX / Slap","FX / Quarter",0.633624
+"FX / Slap","FX / Dotted",0.612042
+"FX / Slap","FX / Wide",0.631625
+"FX / Slap","FX / Dark",0.674174
+"FX / Slap","FX / Bright",0.552253
+"FX / Slap","FX / Deep",0.359412
+"FX / Slap","FX / Wash",0.231801
+"FX / Eighth","FX / Quarter",0.71193
+"FX / Eighth","FX / Dotted",0.616011
+"FX / Eighth","FX / Wide",0.620387
+"FX / Eighth","FX / Dark",0.662993
+"FX / Eighth","FX / Bright",0.539222
+"FX / Eighth","FX / Deep",0.349773
+"FX / Eighth","FX / Wash",0.222367
+"FX / Quarter","FX / Dotted",0.59638
+"FX / Quarter","FX / Wide",0.607476
+"FX / Quarter","FX / Dark",0.648328
+"FX / Quarter","FX / Bright",0.530743
+"FX / Quarter","FX / Deep",0.341888
+"FX / Quarter","FX / Wash",0.225392
+"FX / Dotted","FX / Wide",0.586625
+"FX / Dotted","FX / Dark",0.626012
+"FX / Dotted","FX / Bright",0.512237
+"FX / Dotted","FX / Deep",0.329385
+"FX / Dotted","FX / Wash",0.219565
+"FX / Wide","FX / Dark",0.649926
+"FX / Wide","FX / Bright",0.533698
+"FX / Wide","FX / Deep",0.341816
+"FX / Wide","FX / Wash",0.226065
+"FX / Dark","FX / Bright",0.901141
+"FX / Dark","FX / Deep",0.371639
+"FX / Dark","FX / Wash",0.354976
+"FX / Bright","FX / Deep",0.309984
+"FX / Bright","FX / Wash",0.360017
+"FX / Deep","FX / Wash",0.150819
+"Vocal Doubles / Close","Vocal Doubles / Slap",0.827418
+"Vocal Doubles / Close","Vocal Doubles / Eighth",0.823423
+"Vocal Doubles / Close","Vocal Doubles / Quarter",0.810344
+"Vocal Doubles / Close","Vocal Doubles / Dotted",0.790691
+"Vocal Doubles / Close","Vocal Doubles / Wide",0.802146
+"Vocal Doubles / Close","Vocal Doubles / Dark",0.856388
+"Vocal Doubles / Close","Vocal Doubles / Bright",0.757286
+"Vocal Doubles / Close","Vocal Doubles / Deep",0.630848
+"Vocal Doubles / Close","Vocal Doubles / Wash",0.420236
+"Vocal Doubles / Slap","Vocal Doubles / Eighth",0.76927
+"Vocal Doubles / Slap","Vocal Doubles / Quarter",0.75704
+"Vocal Doubles / Slap","Vocal Doubles / Dotted",0.738683
+"Vocal Doubles / Slap","Vocal Doubles / Wide",0.749772
+"Vocal Doubles / Slap","Vocal Doubles / Dark",0.803362
+"Vocal Doubles / Slap","Vocal Doubles / Bright",0.71061
+"Vocal Doubles / Slap","Vocal Doubles / Deep",0.587422
+"Vocal Doubles / Slap","Vocal Doubles / Wash",0.396434
+"Vocal Doubles / Eighth","Vocal Doubles / Quarter",0.810693
+"Vocal Doubles / Eighth","Vocal Doubles / Dotted",0.743374
+"Vocal Doubles / Eighth","Vocal Doubles / Wide",0.744461
+"Vocal Doubles / Eighth","Vocal Doubles / Dark",0.794841
+"Vocal Doubles / Eighth","Vocal Doubles / Bright",0.702731
+"Vocal Doubles / Eighth","Vocal Doubles / Deep",0.584891
+"Vocal Doubles / Eighth","Vocal Doubles / Wash",0.387992
+"Vocal Doubles / Quarter","Vocal Doubles / Dotted",0.72702
+"Vocal Doubles / Quarter","Vocal Doubles / Wide",0.732626
+"Vocal Doubles / Quarter","Vocal Doubles / Dark",0.781646
+"Vocal Doubles / Quarter","Vocal Doubles / Bright",0.690641
+"Vocal Doubles / Quarter","Vocal Doubles / Deep",0.577006
+"Vocal Doubles / Quarter","Vocal Doubles / Wash",0.380697
+"Vocal Doubles / Dotted","Vocal Doubles / Wide",0.714835
+"Vocal Doubles / Dotted","Vocal Doubles / Dark",0.762759
+"Vocal Doubles / Dotted","Vocal Doubles / Bright",0.674071
+"Vocal Doubles / Dotted","Vocal Doubles / Deep",0.557451
+"Vocal Doubles / Dotted","Vocal Doubles / Wash",0.373787
+"Vocal Doubles / Wide","Vocal Doubles / Dark",0.773704
+"Vocal Doubles / Wide","Vocal Doubles / Bright",0.683327
+"Vocal Doubles / Wide","Vocal Doubles / Deep",0.569511
+"Vocal Doubles / Wide","Vocal Doubles / Wash",0.378107
+"Vocal Doubles / Dark","Vocal Doubles / Bright",0.934677
+"Vocal Doubles / Dark","Vocal Doubles / Deep",0.606371
+"Vocal Doubles / Dark","Vocal Doubles / Wash",0.473544
+"Vocal Doubles / Bright","Vocal Doubles / Deep",0.537566
+"Vocal Doubles / Bright","Vocal Doubles / Wash",0.479775
+"Vocal Doubles / Deep","Vocal Doubles / Wash",0.283928
+"Backing Vocals / Close","Backing Vocals / Slap",0.788133
+"Backing Vocals / Close","Backing Vocals / Eighth",0.7765
+"Backing Vocals / Close","Backing Vocals / Quarter",0.76233
+"Backing Vocals / Close","Backing Vocals / Dotted",0.74124
+"Backing Vocals / Close","Backing Vocals / Wide",0.760644
+"Backing Vocals / Close","Backing Vocals / Dark",0.801687
+"Backing Vocals / Close","Backing Vocals / Bright",0.670261
+"Backing Vocals / Close","Backing Vocals / Deep",0.51661
+"Backing Vocals / Close","Backing Vocals / Wash",0.358884
+"Backing Vocals / Slap","Backing Vocals / Eighth",0.736533
+"Backing Vocals / Slap","Backing Vocals / Quarter",0.72326
+"Backing Vocals / Slap","Backing Vocals / Dotted",0.703282
+"Backing Vocals / Slap","Backing Vocals / Wide",0.722106
+"Backing Vocals / Slap","Backing Vocals / Dark",0.759125
+"Backing Vocals / Slap","Backing Vocals / Bright",0.634958
+"Backing Vocals / Slap","Backing Vocals / Deep",0.484275
+"Backing Vocals / Slap","Backing Vocals / Wash",0.337093
+"Backing Vocals / Eighth","Backing Vocals / Quarter",0.781136
+"Backing Vocals / Eighth","Backing Vocals / Dotted",0.704616
+"Backing Vocals / Eighth","Backing Vocals / Wide",0.709824
+"Backing Vocals / Eighth","Backing Vocals / Dark",0.751375
+"Backing Vocals / Eighth","Backing Vocals / Bright",0.629226
+"Backing Vocals / Eighth","Backing Vocals / Deep",0.479925
+"Backing Vocals / Eighth","Backing Vocals / Wash",0.334879
+"Backing Vocals / Quarter","Backing Vocals / Dotted",0.68667
+"Backing Vocals / Quarter","Backing Vocals / Wide",0.697181
+"Backing Vocals / Quarter","Backing Vocals / Dark",0.736487
+"Backing Vocals / Quarter","Backing Vocals / Bright",0.615922
+"Backing Vocals / Quarter","Backing Vocals / Deep",0.472484
+"Backing Vocals / Quarter","Backing Vocals / Wash",0.33001
+"Backing Vocals / Dotted","Backing Vocals / Wide",0.677703
+"Backing Vocals / Dotted","Backing Vocals / Dark",0.717111
+"Backing Vocals / Dotted","Backing Vocals / Bright",0.602589
+"Backing Vocals / Dotted","Backing Vocals / Deep",0.458724
+"Backing Vocals / Dotted","Backing Vocals / Wash",0.321356
+"Backing Vocals / Wide","Backing Vocals / Dark",0.733945
+"Backing Vocals / Wide","Backing Vocals / Bright",0.61404
+"Backing Vocals / Wide","Backing Vocals / Deep",0.47089
+"Backing Vocals / Wide","Backing Vocals / Wash",0.328077
+"Backing Vocals / Dark","Backing Vocals / Bright",0.909951
+"Backing Vocals / Dark","Backing Vocals / Deep",0.495549
+"Backing Vocals / Dark","Backing Vocals / Wash",0.451837
+"Backing Vocals / Bright","Backing Vocals / Deep",0.416051
+"Backing Vocals / Bright","Backing Vocals / Wash",0.446127
+"Backing Vocals / Deep","Backing Vocals / Wash",0.209617
+"Acoustic Guitar / Close","Acoustic Guitar / Slap",0.833637
+"Acoustic Guitar / Close","Acoustic Guitar / Eighth",0.829144
+"Acoustic Guitar / Close","Acoustic Guitar / Quarter",0.816627
+"Acoustic Guitar / Close","Acoustic Guitar / Dotted",0.797715
+"Acoustic Guitar / Close","Acoustic Guitar / Wide",0.799746
+"Acoustic Guitar / Close","Acoustic Guitar / Dark",0.853277
+"Acoustic Guitar / Close","Acoustic Guitar / Bright",0.73003
+"Acoustic Guitar / Close","Acoustic Guitar / Deep",0.577961
+"Acoustic Guitar / Close","Acoustic Guitar / Wash",0.44393
+"Acoustic Guitar / Slap","Acoustic Guitar / Eighth",0.779444
+"Acoustic Guitar / Slap","Acoustic Guitar / Quarter",0.767777
+"Acoustic Guitar / Slap","Acoustic Guitar / Dotted",0.750006
+"Acoustic Guitar / Slap","Acoustic Guitar / Wide",0.745293
+"Acoustic Guitar / Slap","Acoustic Guitar / Dark",0.802813
+"Acoustic Guitar / Slap","Acoustic Guitar / Bright",0.68721
+"Acoustic Guitar / Slap","Acoustic Guitar / Deep",0.539849
+"Acoustic Guitar / Slap","Acoustic Guitar / Wash",0.418744
+"Acoustic Guitar / Eighth","Acoustic Guitar / Quarter",0.818945
+"Acoustic Guitar / Eighth","Acoustic Guitar / Dotted",0.7544
+"Acoustic Guitar / Eighth","Acoustic Guitar / Wide",0.741126
+"Acoustic Guitar / Eighth","Acoustic Guitar / Dark",0.795638
+"Acoustic Guitar / Eighth","Acoustic Guitar / Bright",0.679764
+"Acoustic Guitar / Eighth","Acoustic Guitar / Deep",0.54146
+"Acoustic Guitar / Eighth","Acoustic Guitar / Wash",0.410943
+"Acoustic Guitar / Quarter","Acoustic Guitar / Dotted",0.738743
+"Acoustic Guitar / Quarter","Acoustic Guitar / Wide",0.729908
+"Acoustic Guitar / Quarter","Acoustic Guitar / Dark",0.784069
+"Acoustic Guitar / Quarter","Acoustic Guitar / Bright",0.670673
+"Acoustic Guitar / Quarter","Acoustic Guitar / Deep",0.52758
+"Acoustic Guitar / Quarter","Acoustic Guitar / Wash",0.404193
+"Acoustic Guitar / Dotted","Acoustic Guitar / Wide",0.713044
+"Acoustic Guitar / Dotted","Acoustic Guitar / Dark",0.766527
+"Acoustic Guitar / Dotted","Acoustic Guitar / Bright",0.655471
+"Acoustic Guitar / Dotted","Acoustic Guitar / Deep",0.523907
+"Acoustic Guitar / Dotted","Acoustic Guitar / Wash",0.397818
+"Acoustic Guitar / Wide","Acoustic Guitar / Dark",0.764921
+"Acoustic Guitar / Wide","Acoustic Guitar / Bright",0.654282
+"Acoustic Guitar / Wide","Acoustic Guitar / Deep",0.5155
+"Acoustic Guitar / Wide","Acoustic Guitar / Wash",0.397631
+"Acoustic Guitar / Dark","Acoustic Guitar / Bright",0.91984
+"Acoustic Guitar / Dark","Acoustic Guitar / Deep",0.552618
+"Acoustic Guitar / Dark","Acoustic Guitar / Wash",0.485286
+"Acoustic Guitar / Bright","Acoustic Guitar / Deep",0.473432
+"Acoustic Guitar / Bright","Acoustic Guitar / Wash",0.461779
+"Acoustic Guitar / Deep","Acoustic Guitar / Wash",0.276669
+"Electric Guitar / Close","Electric Guitar / Slap",0.849015
+"Electric Guitar / Close","Electric Guitar / Eighth",0.837936
+"Electric Guitar / Close","Electric Guitar / Quarter",0.824622
+"Electric Guitar / Close","Electric Guitar / Dotted",0.805611
+"Electric Guitar / Close","Electric Guitar / Wide",0.780487
+"Electric Guitar / Close","Electric Guitar / Dark",0.85422
+"Electric Guitar / Close","Electric Guitar / Bright",0.733655
+"Electric Guitar / Close","Electric Guitar / Deep",0.612334
+"Electric Guitar / Close","Electric Guitar / Wash",0.448771
+"Electric Guitar / Slap","Electric Guitar / Eighth",0.800242
+"Electric Guitar / Slap","Electric Guitar / Quarter",0.787573
+"Electric Guitar / Slap","Electric Guitar / Dotted",0.769385
+"Electric Guitar / Slap","Electric Guitar / Wide",0.741934
+"Electric Guitar / Slap","Electric Guitar / Dark",0.815735
+"Electric Guitar / Slap","Electric Guitar / Bright",0.700156
+"Electric Guitar / Slap","Electric Guitar / Deep",0.580351
+"Electric Guitar / Slap","Electric Guitar / Wash",0.427808
+"Electric Guitar / Eighth","Electric Guitar / Quarter",0.831036
+"Electric Guitar / Eighth","Electric Guitar / Dotted",0.76919
+"Electric Guitar / Eighth","Electric Guitar / Wide",0.733023
+"Electric Guitar / Eighth","Electric Guitar / Dark",0.805829
+"Electric Guitar / Eighth","Electric Guitar / Bright",0.692163
+"Electric Guitar / Eighth","Electric Guitar / Deep",0.581976
+"Electric Guitar / Eighth","Electric Guitar / Wash",0.421266
+"Electric Guitar / Quarter","Electric Guitar / Dotted",0.752881
+"Electric Guitar / Quarter","Electric Guitar / Wide",0.721273
+"Electric Guitar / Quarter","Electric Guitar / Dark",0.793122
+"Electric Guitar / Quarter","Electric Guitar / Bright",0.680893
+"Electric Guitar / Quarter","Electric Guitar / Deep",0.565367
+"Electric Guitar / Quarter","Electric Guitar / Wash",0.415526
+"Electric Guitar / Dotted","Electric Guitar / Wide",0.704643
+"Electric Guitar / Dotted","Electric Guitar / Dark",0.774587
+"Electric Guitar / Dotted","Electric Guitar / Bright",0.66526
+"Electric Guitar / Dotted","Electric Guitar / Deep",0.556021
+"Electric Guitar / Dotted","Electric Guitar / Wash",0.408126
+"Electric Guitar / Wide","Electric Guitar / Dark",0.772058
+"Electric Guitar / Wide","Electric Guitar / Bright",0.684544
+"Electric Guitar / Wide","Electric Guitar / Deep",0.53386
+"Electric Guitar / Wide","Electric Guitar / Wash",0.439304
+"Electric Guitar / Dark","Electric Guitar / Bright",0.921594
+"Electric Guitar / Dark","Electric Guitar / Deep",0.581569
+"Electric Guitar / Dark","Electric Guitar / Wash",0.50589
+"Electric Guitar / Bright","Electric Guitar / Deep",0.498588
+"Electric Guitar / Bright","Electric Guitar / Wash",0.49522
+"Electric Guitar / Deep","Electric Guitar / Wash",0.291825
+"Strings / Close","Strings / Slap",0.737498
+"Strings / Close","Strings / Eighth",0.72346
+"Strings / Close","Strings / Quarter",0.709171
+"Strings / Close","Strings / Dotted",0.68682
+"Strings / Close","Strings / Wide",0.703082
+"Strings / Close","Strings / Dark",0.737887
+"Strings / Close","Strings / Bright",0.58501
+"Strings / Close","Strings / Deep",0.421796
+"Strings / Close","Strings / Wash",0.284837
+"Strings / Slap","Strings / Eighth",0.686832
+"Strings / Slap","Strings / Quarter",0.672976
+"Strings / Slap","Strings / Dotted",0.651744
+"Strings / Slap","Strings / Wide",0.660414
+"Strings / Slap","Strings / Dark",0.696175
+"Strings / Slap","Strings / Bright",0.550527
+"Strings / Slap","Strings / Deep",0.396444
+"Strings / Slap","Strings / Wash",0.265685
+"Strings / Eighth","Strings / Quarter",0.742172
+"Strings / Eighth","Strings / Dotted",0.654339
+"Strings / Eighth","Strings / Wide",0.64797
+"Strings / Eighth","Strings / Dark",0.698938
+"Strings / Eighth","Strings / Bright",0.566286
+"Strings / Eighth","Strings / Deep",0.385207
+"Strings / Eighth","Strings / Wash",0.286289
+"Strings / Quarter","Strings / Dotted",0.635053
+"Strings / Quarter","Strings / Wide",0.634664
+"Strings / Quarter","Strings / Dark",0.672011
+"Strings / Quarter","Strings / Bright",0.533195
+"Strings / Quarter","Strings / Deep",0.381163
+"Strings / Quarter","Strings / Wash",0.257016
+"Strings / Dotted","Strings / Wide",0.61505
+"Strings / Dotted","Strings / Dark",0.652104
+"Strings / Dotted","Strings / Bright",0.516572
+"Strings / Dotted","Strings / Deep",0.368515
+"Strings / Dotted","Strings / Wash",0.251144
+"Strings / Wide","Strings / Dark",0.66056
+"Strings / Wide","Strings / Bright",0.521787
+"Strings / Wide","Strings / Deep",0.376612
+"Strings / Wide","Strings / Wash",0.254517
+"Strings / Dark","Strings / Bright",0.888086
+"Strings / Dark","Strings / Deep",0.3918
+"Strings / Dark","Strings / Wash",0.3853
+"Strings / Bright","Strings / Deep",0.313002
+"Strings / Bright","Strings / Wash",0.39299
+"Strings / Deep","Strings / Wash",0.132723
+"Brass / Close","Brass / Slap",0.821299
+"Brass / Close","Brass / Eighth",0.812285
+"Brass / Close","Brass / Quarter",0.799926
+"Brass / Close","Brass / Dotted",0.780826
+"Brass / Close","Brass / Wide",0.766318
+"Brass / Close","Brass / Dark",0.839034
+"Brass / Close","Brass / Bright",0.715961
+"Brass / Close","Brass / Deep",0.52416
+"Brass / Close","Brass / Wash",0.414274
+"Brass / Slap","Brass / Eighth",0.768835
+"Brass / Slap","Brass / Quarter",0.7571
+"Brass / Slap","Brass / Dotted",0.739017
+"Brass / Slap","Brass / Wide",0.73165
+"Brass / Slap","Brass / Dark",0.796614
+"Brass / Slap","Brass / Bright",0.680084
+"Brass / Slap","Brass / Deep",0.496345
+"Brass / Slap","Brass / Wash",0.394504
+"Brass / Eighth","Brass / Quarter",0.807453
+"Brass / Eighth","Brass / Dotted",0.73972
+"Brass / Eighth","Brass / Wide",0.722297
+"Brass / Eighth","Brass / Dark",0.785552
+"Brass / Eighth","Brass / Bright",0.672025
+"Brass / Eighth","Brass / Deep",0.488491
+"Brass / Eighth","Brass / Wash",0.389286
+"Brass / Quarter","Brass / Dotted",0.723879
+"Brass / Quarter","Brass / Wide",0.71118
+"Brass / Quarter","Brass / Dark",0.774274
+"Brass / Quarter","Brass / Bright",0.660788
+"Brass / Quarter","Brass / Deep",0.482129
+"Brass / Quarter","Brass / Wash",0.383681
+"Brass / Dotted","Brass / Wide",0.694194
+"Brass / Dotted","Brass / Dark",0.77684
+"Brass / Dotted","Brass / Bright",0.687681
+"Brass / Dotted","Brass / Deep",0.469939
+"Brass / Dotted","Brass / Wash",0.368596
+"Brass / Wide","Brass / Dark",0.748167
+"Brass / Wide","Brass / Bright",0.63976
+"Brass / Wide","Brass / Deep",0.467685
+"Brass / Wide","Brass / Wash",0.370915
+"Brass / Dark","Brass / Bright",0.918714
+"Brass / Dark","Brass / Deep",0.497112
+"Brass / Dark","Brass / Wash",0.474587
+"Brass / Bright","Brass / Deep",0.423534
+"Brass / Bright","Brass / Wash",0.465652
+"Brass / Deep","Brass / Wash",0.235499
+"Percussion / Close","Percussion / Slap",0.863486
+"Percussion / Close","Percussion / Eighth",0.858264
+"Percussion / Close","Percussion / Quarter",0.847584
+"Percussion / Close","Percussion / Dotted",0.830791
+"Percussion / Close","Percussion / Wide",0.847249
+"Percussion / Close","Percussion / Dark",0.891236
+"Percussion / Close","Percussion / Bright",0.780127
+"Percussion / Close","Percussion / Deep",0.656005
+"Percussion / Close","Percussion / Wash",0.487405
+"Percussion / Slap","Percussion / Eighth",0.806171
+"Percussion / Slap","Percussion / Quarter",0.796182
+"Percussion / Slap","Percussion / Dotted",0.780408
+"Percussion / Slap","Percussion / Wide",0.797117
+"Percussion / Slap","Percussion / Dark",0.836912
+"Percussion / Slap","Percussion / Bright",0.731462
+"Percussion / Slap","Percussion / Deep",0.61799
+"Percussion / Slap","Percussion / Wash",0.455931
+"Percussion / Eighth","Percussion / Quarter",0.841071
+"Percussion / Eighth","Percussion / Dotted",0.784313
+"Percussion / Eighth","Percussion / Wide",0.792182
+"Percussion / Eighth","Percussion / Dark",0.828227
+"Percussion / Eighth","Percussion / Bright",0.721761
+"Percussion / Eighth","Percussion / Deep",0.609545
+"Percussion / Eighth","Percussion / Wash",0.451044
+"Percussion / Quarter","Percussion / Dotted",0.770749
+"Percussion / Quarter","Percussion / Wide",0.782311
+"Percussion / Quarter","Percussion / Dark",0.821669
+"Percussion / Quarter","Percussion / Bright",0.718462
+"Percussion / Quarter","Percussion / Deep",0.605191
+"Percussion / Quarter","Percussion / Wash",0.449935
+"Percussion / Dotted","Percussion / Wide",0.766805
+"Percussion / Dotted","Percussion / Dark",0.805469
+"Percussion / Dotted","Percussion / Bright",0.704235
+"Percussion / Dotted","Percussion / Deep",0.591633
+"Percussion / Dotted","Percussion / Wash",0.436279
+"Percussion / Wide","Percussion / Dark",0.822263
+"Percussion / Wide","Percussion / Bright",0.718631
+"Percussion / Wide","Percussion / Deep",0.607051
+"Percussion / Wide","Percussion / Wash",0.447847
+"Percussion / Dark","Percussion / Bright",0.929653
+"Percussion / Dark","Percussion / Deep",0.63112
+"Percussion / Dark","Percussion / Wash",0.515352
+"Percussion / Bright","Percussion / Deep",0.551835
+"Percussion / Bright","Percussion / Wash",0.491977
+"Percussion / Deep","Percussion / Wash",0.336035
+"Electronic Drums / Close","Electronic Drums / Slap",0.783811
+"Electronic Drums / Close","Electronic Drums / Eighth",0.778185
+"Electronic Drums / Close","Electronic Drums / Quarter",0.764837
+"Electronic Drums / Close","Electronic Drums / Dotted",0.743894
+"Electronic Drums / Close","Electronic Drums / Wide",0.746437
+"Electronic Drums / Close","Electronic Drums / Dark",0.816729
+"Electronic Drums / Close","Electronic Drums / Bright",0.695207
+"Electronic Drums / Close","Electronic Drums / Deep",0.556633
+"Electronic Drums / Close","Electronic Drums / Wash",0.371193
+"Electronic Drums / Slap","Electronic Drums / Eighth",0.722693
+"Electronic Drums / Slap","Electronic Drums / Quarter",0.710253
+"Electronic Drums / Slap","Electronic Drums / Dotted",0.690821
+"Electronic Drums / Slap","Electronic Drums / Wide",0.691066
+"Electronic Drums / Slap","Electronic Drums / Dark",0.756298
+"Electronic Drums / Slap","Electronic Drums / Bright",0.642382
+"Electronic Drums / Slap","Electronic Drums / Deep",0.517267
+"Electronic Drums / Slap","Electronic Drums / Wash",0.341354
+"Electronic Drums / Eighth","Electronic Drums / Quarter",0.774994
+"Electronic Drums / Eighth","Electronic Drums / Dotted",0.697366
+"Electronic Drums / Eighth","Electronic Drums / Wide",0.68455
+"Electronic Drums / Eighth","Electronic Drums / Dark",0.750001
+"Electronic Drums / Eighth","Electronic Drums / Bright",0.63662
+"Electronic Drums / Eighth","Electronic Drums / Deep",0.51465
+"Electronic Drums / Eighth","Electronic Drums / Wash",0.337549
+"Electronic Drums / Quarter","Electronic Drums / Dotted",0.680001
+"Electronic Drums / Quarter","Electronic Drums / Wide",0.672774
+"Electronic Drums / Quarter","Electronic Drums / Dark",0.736987
+"Electronic Drums / Quarter","Electronic Drums / Bright",0.626315
+"Electronic Drums / Quarter","Electronic Drums / Deep",0.501942
+"Electronic Drums / Quarter","Electronic Drums / Wash",0.332928
+"Electronic Drums / Dotted","Electronic Drums / Wide",0.654342
+"Electronic Drums / Dotted","Electronic Drums / Dark",0.722635
+"Electronic Drums / Dotted","Electronic Drums / Bright",0.620372
+"Electronic Drums / Dotted","Electronic Drums / Deep",0.489464
+"Electronic Drums / Dotted","Electronic Drums / Wash",0.325501
+"Electronic Drums / Wide","Electronic Drums / Dark",0.719705
+"Electronic Drums / Wide","Electronic Drums / Bright",0.612115
+"Electronic Drums / Wide","Electronic Drums / Deep",0.48808
+"Electronic Drums / Wide","Electronic Drums / Wash",0.327411
+"Electronic Drums / Dark","Electronic Drums / Bright",0.91687
+"Electronic Drums / Dark","Electronic Drums / Deep",0.533127
+"Electronic Drums / Dark","Electronic Drums / Wash",0.42949
+"Electronic Drums / Bright","Electronic Drums / Deep",0.456258
+"Electronic Drums / Bright","Electronic Drums / Wash",0.43747
+"Electronic Drums / Deep","Electronic Drums / Wash",0.22745
+"Orchestral / Close","Orchestral / Slap",0.717623
+"Orchestral / Close","Orchestral / Eighth",0.703433
+"Orchestral / Close","Orchestral / Quarter",0.688805
+"Orchestral / Close","Orchestral / Dotted",0.66589
+"Orchestral / Close","Orchestral / Wide",0.655449
+"Orchestral / Close","Orchestral / Dark",0.70842
+"Orchestral / Close","Orchestral / Bright",0.555847
+"Orchestral / Close","Orchestral / Deep",0.389754
+"Orchestral / Close","Orchestral / Wash",0.261129
+"Orchestral / Slap","Orchestral / Eighth",0.670485
+"Orchestral / Slap","Orchestral / Quarter",0.656452
+"Orchestral / Slap","Orchestral / Dotted",0.634872
+"Orchestral / Slap","Orchestral / Wide",0.619216
+"Orchestral / Slap","Orchestral / Dark",0.670296
+"Orchestral / Slap","Orchestral / Bright",0.525279
+"Orchestral / Slap","Orchestral / Deep",0.370293
+"Orchestral / Slap","Orchestral / Wash",0.245475
+"Orchestral / Eighth","Orchestral / Quarter",0.729441
+"Orchestral / Eighth","Orchestral / Dotted",0.637947
+"Orchestral / Eighth","Orchestral / Wide",0.609739
+"Orchestral / Eighth","Orchestral / Dark",0.661973
+"Orchestral / Eighth","Orchestral / Bright",0.518833
+"Orchestral / Eighth","Orchestral / Deep",0.358678
+"Orchestral / Eighth","Orchestral / Wash",0.241954
+"Orchestral / Quarter","Orchestral / Dotted",0.618223
+"Orchestral / Quarter","Orchestral / Wide",0.596621
+"Orchestral / Quarter","Orchestral / Dark",0.647537
+"Orchestral / Quarter","Orchestral / Bright",0.507722
+"Orchestral / Quarter","Orchestral / Deep",0.357041
+"Orchestral / Quarter","Orchestral / Wash",0.237938
+"Orchestral / Dotted","Orchestral / Wide",0.577543
+"Orchestral / Dotted","Orchestral / Dark",0.626841
+"Orchestral / Dotted","Orchestral / Bright",0.491578
+"Orchestral / Dotted","Orchestral / Deep",0.347942
+"Orchestral / Dotted","Orchestral / Wash",0.229213
+"Orchestral / Wide","Orchestral / Dark",0.613004
+"Orchestral / Wide","Orchestral / Bright",0.479851
+"Orchestral / Wide","Orchestral / Deep",0.336509
+"Orchestral / Wide","Orchestral / Wash",0.226674
+"Orchestral / Dark","Orchestral / Bright",0.884786
+"Orchestral / Dark","Orchestral / Deep",0.357223
+"Orchestral / Dark","Orchestral / Wash",0.384477
+"Orchestral / Bright","Orchestral / Deep",0.281386
+"Orchestral / Bright","Orchestral / Wash",0.40057
+"Orchestral / Deep","Orchestral / Wash",0.119026
+"Sound Design / Close","Sound Design / Slap",0.616032
+"Sound Design / Close","Sound Design / Eighth",0.600116
+"Sound Design / Close","Sound Design / Quarter",0.582888
+"Sound Design / Close","Sound Design / Dotted",0.558452
+"Sound Design / Close","Sound Design / Wide",0.547645
+"Sound Design / Close","Sound Design / Dark",0.609838
+"Sound Design / Close","Sound Design / Bright",0.469015
+"Sound Design / Close","Sound Design / Deep",0.305644
+"Sound Design / Close","Sound Design / Wash",0.18268
+"Sound Design / Slap","Sound Design / Eighth",0.564175
+"Sound Design / Slap","Sound Design / Quarter",0.550743
+"Sound Design / Slap","Sound Design / Dotted",0.527447
+"Sound Design / Slap","Sound Design / Wide",0.511624
+"Sound Design / Slap","Sound Design / Dark",0.571852
+"Sound Design / Slap","Sound Design / Bright",0.437167
+"Sound Design / Slap","Sound Design / Deep",0.28306
+"Sound Design / Slap","Sound Design / Wash",0.161724
+"Sound Design / Eighth","Sound Design / Quarter",0.648218
+"Sound Design / Eighth","Sound Design / Dotted",0.534002
+"Sound Design / Eighth","Sound Design / Wide",0.499627
+"Sound Design / Eighth","Sound Design / Dark",0.561018
+"Sound Design / Eighth","Sound Design / Bright",0.429849
+"Sound Design / Eighth","Sound Design / Deep",0.2851
+"Sound Design / Eighth","Sound Design / Wash",0.162633
+"Sound Design / Quarter","Sound Design / Dotted",0.511786
+"Sound Design / Quarter","Sound Design / Wide",0.486474
+"Sound Design / Quarter","Sound Design / Dark",0.556499
+"Sound Design / Quarter","Sound Design / Bright",0.43078
+"Sound Design / Quarter","Sound Design / Deep",0.278222
+"Sound Design / Quarter","Sound Design / Wash",0.157316
+"Sound Design / Dotted","Sound Design / Wide",0.465417
+"Sound Design / Dotted","Sound Design / Dark",0.524167
+"Sound Design / Dotted","Sound Design / Bright",0.400781
+"Sound Design / Dotted","Sound Design / Deep",0.26978
+"Sound Design / Dotted","Sound Design / Wash",0.153601
+"Sound Design / Wide","Sound Design / Dark",0.50734
+"Sound Design / Wide","Sound Design / Bright",0.388802
+"Sound Design / Wide","Sound Design / Deep",0.257986
+"Sound Design / Wide","Sound Design / Wash",0.150666
+"Sound Design / Dark","Sound Design / Bright",0.876369
+"Sound Design / Dark","Sound Design / Deep",0.295696
+"Sound Design / Dark","Sound Design / Wash",0.332117
+"Sound Design / Bright","Sound Design / Deep",0.223248
+"Sound Design / Bright","Sound Design / Wash",0.33791
+"Sound Design / Deep","Sound Design / Wash",0.0866406

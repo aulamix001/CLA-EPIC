@@ -5,48 +5,89 @@
 namespace epic {
 struct Preset { std::string name; Settings settings; };
 inline constexpr int factoryPresetCount=200;
-// 20 application profiles x 10 arrangements. Slots 0..99 retain their original settings.
+// Original EpicLab programs, voiced by source and effect intent. Names/indices
+// remain stable; this bank does not reproduce or contain Waves factory presets.
 inline const std::array<Preset,factoryPresetCount>& factoryPresets() {
     static const auto bank=[] {
-        std::array<Preset,factoryPresetCount> result;
-        const char* groups[]={"Vocal","Guitar","Piano","Drums","Snare","Synth","Ambient","Bass","Bus","FX",
-            "Vocal Doubles","Backing Vocals","Acoustic Guitar","Electric Guitar","Strings",
-            "Brass","Percussion","Electronic Drums","Orchestral","Sound Design"};
+        struct Profile {
+            const char* name;
+            float hp,lp,decay,predelay,slap,echo,mod,mixBias,room;
+        };
+        const Profile profiles[]={
+            {"Vocal",180,10000,1.6f,22,90,310,6,0,.42f},
+            {"Guitar",160,8000,1.3f,12,105,280,4,-2,.36f},
+            {"Piano",110,11500,2.4f,18,82,360,3,1,.55f},
+            {"Drums",260,8500,.85f,4,65,220,1,-4,.25f},
+            {"Snare",320,9500,1.2f,12,78,250,2,-2,.34f},
+            {"Synth",120,14000,2.8f,28,115,400,14,6,.65f},
+            {"Ambient",220,10000,4.2f,40,125,480,22,10,.8f},
+            {"Bass",320,6000,1,5,68,260,1,-5,.28f},
+            {"Bus",160,10500,1.4f,16,88,330,2,-4,.4f},
+            {"FX",240,13000,3.6f,36,120,440,25,8,.7f},
+            {"Vocal Doubles",220,9000,1.4f,12,76,290,10,1,.36f},
+            {"Backing Vocals",260,8500,2.3f,30,108,365,12,4,.58f},
+            {"Acoustic Guitar",140,12000,1.65f,14,84,275,2,-1,.4f},
+            {"Electric Guitar",210,7500,1.8f,18,112,325,8,0,.45f},
+            {"Strings",130,11500,3.2f,34,100,410,8,5,.68f},
+            {"Brass",240,10000,2.1f,22,86,300,3,1,.48f},
+            {"Percussion",280,12500,1.05f,7,64,235,2,-2,.3f},
+            {"Electronic Drums",190,15500,1.7f,10,72,375,10,3,.46f},
+            {"Orchestral",140,12500,3.8f,42,105,460,7,6,.75f},
+            {"Sound Design",200,16000,4.8f,50,128,510,30,12,.85f}
+        };
         const char* styles[]={"Close","Slap","Eighth","Quarter","Dotted","Wide","Dark","Bright","Deep","Wash"};
-        const float mix[]={24,20,22,12,20,28,48,10,12,40,18,25,16,22,32,20,14,18,36,42};
-        const float decay[]={1.8f,1.4f,2.2f,.7f,1.2f,2.8f,6.f,.6f,1.f,4.f,1.2f,2.4f,1.1f,1.7f,3.6f,1.6f,.9f,1.3f,4.5f,5.5f};
-        const float hp[]={140,180,100,200,300,120,180,350,160,240,180,220,120,240,100,180,280,240,120,200};
-        const float beats[]={.25f,.25f,.5f,1.f,.75f,.5f,1.5f,.5f,2.f,3.f};
-        static_assert(std::size(groups)*std::size(styles)==factoryPresetCount);
-        static_assert(std::size(mix)==std::size(groups)&&std::size(decay)==std::size(groups)&&std::size(hp)==std::size(groups));
-        for(int g=0;g<int(std::size(groups));++g) for(int v=0;v<10;++v) {
-            auto& p=result[g*10+v];p.name=std::string(groups[g])+" / "+styles[v];auto& s=p.settings;
-            s.mix=mix[g]+v*.7f; s.output=-1.f;
-            for(int i=0;i<8;++i) {
-                auto& strip=s.strips[i];
-                strip.level=-26.f+float((g+v+i*3)%7);
-                strip.hp=hp[g]+i*17.f;
-                strip.lp=v==6?3200.f:v==7?16000.f:7500.f+g*300.f;
-                strip.mute=true;strip.solo=false;
+        static_assert(std::size(profiles)*std::size(styles)==factoryPresetCount);
+        std::array<Preset,factoryPresetCount> result;
+        for(int g=0;g<int(std::size(profiles));++g)for(int v=0;v<int(std::size(styles));++v){
+            const auto& p=profiles[g];auto& preset=result[size_t(g*10+v)];auto& s=preset.settings;
+            preset.name=std::string(p.name)+" / "+styles[v];s.output=-1.5f;
+            for(auto& strip:s.strips){strip.level=-18;strip.hp=p.hp;strip.lp=p.lp;strip.mute=true;strip.solo=false;}
+            for(int d=0;d<4;++d){
+                s.time[d]=s.time2[d]=p.echo;s.feedback[d]=s.feedback2[d]=25;
+                s.beats[d]=s.beats2[d]=.5f;s.sync[d]=s.sync2[d]=false;
+                s.offset[d]=0;s.modulation[d]=0;s.direct[d]=true;s.sends[d].fill(0);
+                s.decay[d]=std::clamp(p.decay,.1f,10.f);s.predelay[d]=p.predelay;s.reverbMod[d]=p.mod*.3f;
             }
-            const int delay=(g+v)%4, reverb=(g+v/3)%4;
-            s.strips[delay].mute=false;s.strips[delay].level=-12.f-v*.6f;
-            s.strips[reverb+4].mute=false;s.strips[reverb+4].level=-11.f-v*.4f;
-            if(v>=5) {s.strips[(reverb+1)%4+4].mute=false;}
-            for(int d=0;d<4;++d) {
-                s.time[d]=(v==1?70.f:100.f)+g*11.f+d*37.f+v*9.f;
-                s.sync[d]=(v>=2 && v<=4);s.beats[d]=std::min(4.f,beats[v]*(d==1?1.5f:1.f));
-                s.feedback[d]=v<2?8.f+g:20.f+v*3.f+d;
-                s.time2[d]=s.time[d]*1.5f;s.feedback2[d]=s.feedback[d];s.sync2[d]=s.sync[d];s.beats2[d]=std::min(4.f,s.beats[d]*1.5f);
-                s.offset[d]=v>=5?float(v-4):0;s.modulation[d]=float(v*3);s.reverbMod[d]=float(v*2);
-                s.direct[d]=true;
-                s.sends[d].fill(0);
-            }
-            s.crowdWidth=20.f+v*7.f;s.lowRatio=1.f;s.highRatio=v==6?.6f:1.f;
-            s.sends[delay][reverb]=v<2?10.f:25.f+v*4.f;
-            for(int r=0;r<4;++r) {
-                s.decay[r]=std::min(10.f,decay[g]*(.65f+v*.12f)+r*.15f);
-                s.predelay[r]=g==3?0.f:8.f+v*3.f+r*5.f;
+            auto enable=[&](int strip,float level){s.strips[strip].mute=false;s.strips[strip].level=level;};
+            auto mix=[&](float value){s.mix=std::clamp(value+p.mixBias,20.f,82.f);};
+            switch(v){
+                case 0: // Short room ambience; no echo or long tail.
+                    mix(36);enable(5,2);s.decay[1]=p.room;s.predelay[1]=std::min(12.f,p.predelay*.25f);s.reverbMod[1]=0;
+                    break;
+                case 1: // A single, audible manual slap; no tempo-dependent substitution.
+                    mix(38);enable(2,0);s.time[2]=p.slap;s.feedback[2]=8;
+                    break;
+                case 2: // One eighth note in both channels at any host tempo.
+                case 3: // One quarter note in both channels at any host tempo.
+                case 4: { // Dotted eighth left, dotted quarter right.
+                    mix(v==2?40:v==3?43:46);const int d=v==2?0:1;enable(d,0);
+                    s.sync[d]=s.sync2[d]=true;s.beats[d]=v==2?.5f:v==3?1.f:.75f;
+                    s.beats2[d]=v==4?1.5f:s.beats[d];s.feedback[d]=v==2?28:v==3?38:42;s.feedback2[d]=s.feedback[d];
+                    break;
+                }
+                case 5: // Stereo doubling uses genuinely independent left/right taps.
+                    mix(46);enable(0,0);s.time[0]=12+p.slap*.04f;s.time2[0]=27+p.slap*.06f;
+                    s.feedback[0]=s.feedback2[0]=0;s.modulation[0]=p.mod*.25f;
+                    enable(6,-8);s.decay[2]=std::clamp(p.decay*.6f,.5f,2.2f);s.predelay[2]=18;
+                    break;
+                case 6: // Matched routing/timing makes Dark/Bright a tonal comparison.
+                case 7:
+                    mix(48);enable(0,-1);enable(6,-3);s.time[0]=p.echo;s.time2[0]=p.echo*1.25f;
+                    s.feedback[0]=s.feedback2[0]=42;s.modulation[0]=p.mod*.35f;
+                    s.decay[2]=std::clamp(p.decay*1.25f,1.2f,6.f);s.sends[0][2]=18;
+                    for(auto& strip:s.strips)strip.lp=v==6?1800.f:18000.f;
+                    break;
+                case 8: // Clear leading transient followed by a long hall/plate tail.
+                    mix(56);enable(6,2);enable(4,-5);s.decay[2]=std::clamp(p.decay*2.3f,2.8f,8.f);
+                    s.decay[0]=std::clamp(p.decay*1.2f,1.4f,4.f);s.predelay[2]=55+p.predelay;s.predelay[0]=35+p.predelay;
+                    s.reverbMod[2]=p.mod*.7f;
+                    break;
+                case 9: // Dense, wet, modulated long space fed by a stereo crowd.
+                    mix(70);enable(7,0);enable(6,-6);enable(3,-5);s.time[3]=p.echo*.7f;
+                    s.feedback[3]=48;s.crowdWidth=90;s.modulation[3]=18+p.mod*.5f;
+                    s.decay[3]=std::clamp(p.decay*3.f,6.f,10.f);s.decay[2]=std::clamp(p.decay*1.8f,3.f,8.f);
+                    s.predelay[3]=p.predelay+25;s.reverbMod[3]=20+p.mod;s.sends[3][3]=35;s.spaceShape=.1f;
+                    break;
             }
         }
         return result;

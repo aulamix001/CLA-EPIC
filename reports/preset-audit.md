@@ -53,8 +53,13 @@ A comparação deve avaliar tempos dos ecos, curva de decaimento por banda, resp
 Na raiz do repositório, com compilador C++17:
 
 ```sh
-g++ -O3 -std=c++17 -ISource scripts/preset_audit.cpp -o /tmp/epic-preset-audit
+mkdir -p /tmp/epic-audit-baseline
+git show v0.5.4:Source/Presets.h > /tmp/epic-audit-baseline/Presets.h
+git show v0.5.4:Source/Dsp.h > /tmp/epic-audit-baseline/Dsp.h
+g++ -O3 -std=c++17 -I/tmp/epic-audit-baseline scripts/preset_audit.cpp -o /tmp/epic-preset-audit
 /tmp/epic-preset-audit reports/preset-audit-before.csv reports/preset-pairs-before.csv
 ```
 
 A auditoria usou `Presets.h` e `Dsp.h` da versão 0.5.4. Esta revisão acrescenta diagnóstico; o banco, o DSP, a interface e `assets/imagem.png` permanecem sem alterações. SHA-256 da imagem: `50718bceaef9953a6899abddb34b4ecbb36817b5ef3967e5a96d3b0c6149b9f0`.
+
+A revisão posterior dos 200 programas está documentada em [preset-voicing-0.6.0.md](preset-voicing-0.6.0.md), com medições antes/depois.
