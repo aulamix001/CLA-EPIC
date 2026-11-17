@@ -95,17 +95,17 @@ int main(){
  p->setCurrentProgram(0);
  dynamic_cast<juce::Button*>(find(*editor,"delayTab1"))->onClick();
  dynamic_cast<juce::Button*>(find(*editor,"reverbTab3"))->onClick();
- editor->setSize(1568,1008);
+ editor->setSize(1567,1004);
  auto original=juce::ImageCache::getFromMemory(BinaryData::imagem_png,BinaryData::imagem_pngSize);
  auto snapshot=editor->createComponentSnapshot(editor->getLocalBounds());
- check(snapshot.getWidth()==original.getWidth()&&snapshot.getHeight()==original.getHeight(),"skin native dimensions");
+ check(snapshot.getWidth()==original.getWidth()&&snapshot.getHeight()==original.getHeight(),"skin native dimensions failed");
  const juce::Rectangle<int> immutableZones[]={
-  {0,0,1568,20},{0,984,1568,24},{0,0,16,1008},{1550,0,18,1008},
+  {0,0,1567,20},{0,984,1567,20},{0,0,16,1004},{1549,0,18,1004},
   {150,210,24,700},{778,20,18,955},{1406,210,16,700},
   {1428,246,115,77},{180,382,1218,10},{196,507,1196,20}
  };
  for(const auto& zone:immutableZones)for(int y=zone.getY();y<zone.getBottom();y+=3)for(int x=zone.getX();x<zone.getRight();x+=3)
-  check(snapshot.getPixelAt(x,y)==original.getPixelAt(x,y),"original frame, logo, labels and metal texture remain unchanged");
+  check(snapshot.getPixelAt(x,y)==original.getPixelAt(x,y),"original skin pixel mapping mismatch at "+juce::String(x)+","+juce::String(y));
  auto* firstFader=find(*editor,"s0_level");check(firstFader&&firstFader->getBounds()==juce::Rectangle<int>(224,578,44,342),"fader stays at original position");
  auto* logo=find(*editor,"factoryPresets");check(logo&&logo->getBounds()==juce::Rectangle<int>(1427,245,119,79),"presets use original logo, no extra toolbar");
  // Save a separate application screenshot; never modify the immutable source image.

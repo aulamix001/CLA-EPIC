@@ -259,17 +259,17 @@ class Editor final : public juce::AudioProcessorEditor,private juce::Timer {
     }
 public:
     explicit Editor(Processor& p):AudioProcessorEditor(p),processor(p),surface(p){
-        addAndMakeVisible(surface);surface.setBounds(0,0,1568,1008);
+        addAndMakeVisible(surface);surface.setBounds(0,0,1567,1004);
         // Transparent combo occupies the existing logo, adding no toolbar or decoration.
         surface.addAndMakeVisible(presets);presets.setBounds(1427,245,119,79);presets.setComponentID("factoryPresets");
         for(int i=0;i<100;++i)presets.addItem(p.getProgramName(i),i+1);
         presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);displayedProgram=-1;timerCallback();};
-        timerCallback();setSize(1100,707);setResizable(true,true);setResizeLimits(840,540,1882,1210);
-        if(auto* constrainer=getConstrainer())constrainer->setFixedAspectRatio(1568.0/1008.0);startTimerHz(10);
+        timerCallback();setSize(1100,705);setResizable(true,true);setResizeLimits(840,540,1882,1210);
+        if(auto* constrainer=getConstrainer())constrainer->setFixedAspectRatio(1567.0/1004.0);startTimerHz(10);
     }
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colours::black);}
     void resized() override {
-        const float scale=std::min(float(getWidth())/1568.f,float(getHeight())/1008.f);
-        surface.setTransform(juce::AffineTransform::scale(scale).translated((getWidth()-1568*scale)*.5f,(getHeight()-1008*scale)*.5f));
+        const float scale=std::min(float(getWidth())/1567.f,float(getHeight())/1004.f);
+        surface.setTransform(juce::AffineTransform::scale(scale).translated((getWidth()-1567*scale)*.5f,(getHeight()-1004*scale)*.5f));
     }
 };
