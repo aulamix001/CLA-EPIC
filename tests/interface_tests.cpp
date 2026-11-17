@@ -106,7 +106,7 @@ int main(){
  };
  for(const auto& zone:immutableZones)for(int y=zone.getY();y<zone.getBottom();y+=3)for(int x=zone.getX();x<zone.getRight();x+=3)
   check(snapshot.getPixelAt(x,y)==original.getPixelAt(x,y),"original frame, logo, labels and metal texture remain unchanged");
- auto* firstFader=find(*editor,"s0_level");check(firstFader&&firstFader->getBounds()==juce::Rectangle<int>(224,605,44,285),"fader stays at original position");
+ auto* firstFader=find(*editor,"s0_level");check(firstFader&&firstFader->getBounds()==juce::Rectangle<int>(224,578,44,342),"fader stays at original position");
  auto* logo=find(*editor,"factoryPresets");check(logo&&logo->getBounds()==juce::Rectangle<int>(1427,245,119,79),"presets use original logo, no extra toolbar");
  // Save a separate application screenshot; never modify the immutable source image.
  auto preview=juce::File::getCurrentWorkingDirectory().getChildFile("interface-preview.png");

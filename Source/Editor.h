@@ -50,7 +50,23 @@ public:
         attachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,id,*this);
         setDoubleClickReturnValue(true,p.state.getParameter(id)->convertFrom0to1(p.state.getParameter(id)->getDefaultValue()));
     }
+    double valueToProportionOfLength(double value) override {
+        if(kind!=fader)return juce::Slider::valueToProportionOfLength(value);
+        if(getComponentID()=="input"||getComponentID()=="output")return juce::jlimit(0.0,1.0,(value+12.0)/24.0);
+        const double y=value>=-40?655.0-value*4.65:841.0+(-40-value)*2.25;
+        return juce::jlimit(0.0,1.0,(886.0-y)/276.0);
+    }
+    double proportionOfLengthToValue(double proportion) override {
+        if(kind!=fader)return juce::Slider::proportionOfLengthToValue(proportion);
+        if(getComponentID()=="input"||getComponentID()=="output")return proportion*24.0-12.0;
+        const double y=886.0-proportion*276.0;
+        return juce::jlimit(getMinimum(),getMaximum(),y<=841?(655.0-y)/4.65:-40.0-(y-841.0)/2.25);
+    }
     void mouseDown(const juce::MouseEvent& e) override {down=e.getPosition();downValue=getValue();juce::Slider::mouseDown(e);}
+    void mouseDrag(const juce::MouseEvent& e) override {
+        if(kind==fader)setValue(proportionOfLengthToValue(juce::jlimit(0.0,1.0,1.0-(e.position.y-32.0)/276.0)),juce::sendNotificationSync);
+        else juce::Slider::mouseDrag(e);
+    }
     void mouseUp(const juce::MouseEvent& e) override {
         if(kind==route && e.getPosition().getDistanceFrom(down)<3)setValue(downValue>0?0:100,juce::sendNotificationSync);
         juce::Slider::mouseUp(e);
@@ -66,8 +82,8 @@ public:
             // Copy neighbouring metal texture, preserving the original thumb sprite.
             g.drawImage(image,0,0,getWidth(),getHeight(),int(emptyX),source.getY(),getWidth(),source.getHeight());
             const int cx=getWidth()/2;
-            g.setColour(juce::Colour(0xff060809));g.fillRoundedRectangle(float(cx-4),0,8.f,float(getHeight()),3.f);
-            const float t=float(1-valueToProportionOfLength(getValue()));const int y=int(t*float(getHeight()-thumb.getHeight()));
+            g.setColour(juce::Colour(0xff060809));g.fillRoundedRectangle(float(cx-4),32,8.f,276.f,3.f);
+            const float t=float(1-valueToProportionOfLength(getValue()));const int y=int(32+t*276)-thumb.getHeight()/2;
             g.drawImage(image,cx-thumb.getWidth()/2,y,thumb.getWidth(),thumb.getHeight(),thumb.getX(),thumb.getY(),thumb.getWidth(),thumb.getHeight());
         } else if(kind==route){
             g.setColour(getValue()>0?colour.withAlpha(.8f):juce::Colour(0xff10222b));g.fillRect(area.reduced(1));g.setColour(colour);g.drawRect(area.reduced(1));
@@ -166,7 +182,7 @@ public:
         setInterceptsMouseClicks(false,true);const auto b=skin::blue(),r=skin::red();
         static const int thumbY[]={690,655,643,757,720,630,710,635};
         for(int i=0;i<8;++i){const int x=skin::stripX(i),cx=x+72;auto id=[&](const char* f){return Processor::id(i,f);};const auto colour=i<4?b:r;
-            slider(common,id("level"),SkinSlider::fader,{cx-22,605,44,285},colour,{cx-18,thumbY[i],36,64},float(cx-64));
+            slider(common,id("level"),SkinSlider::fader,{cx-22,578,44,342},colour,{cx-18,thumbY[i],36,64},float(cx-64));
             slider(common,id("hp"),SkinSlider::knob,{x+22,461,44,44},colour);
             slider(common,id("lp"),SkinSlider::knob,{x+84,461,44,44},r);
             button(buttons,id("solo"),{x+34,537,37,28},{208,537,37,28},colour);
@@ -177,8 +193,8 @@ public:
                 button(buttons,id("direct"),{193+i*147,319,56,25},{193,319,56,25},b);
             }
         }
-        slider(common,"input",SkinSlider::fader,{68,605,44,285},b,{72,717,36,64},116);
-        slider(common,"output",SkinSlider::fader,{1454,605,44,285},r,{1458,717,36,64},1404);
+        slider(common,"input",SkinSlider::fader,{68,578,44,342},b,{72,717,36,64},116);
+        slider(common,"output",SkinSlider::fader,{1454,578,44,342},r,{1458,717,36,64},1404);
         slider(common,"mix",SkinSlider::knob,{1461,461,43,44},b);
         for(int n=0;n<4;++n){
             delayTabs[n].setBounds(skin::stripX(n)+2,926,145,36);delayTabs[n].setComponentID("delayTab"+juce::String(n));delayTabs[n].onClick=[this,n]{selectDelay(n);};addAndMakeVisible(delayTabs[n]);

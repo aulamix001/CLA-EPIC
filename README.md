@@ -2,13 +2,13 @@
 
 Implementação independente C++17/JUCE 8.0.6 de um mixer com quatro delays e quatro reverbs. Usa os anexos como referências de comportamento e organização; não contém nem reproduz o DSP proprietário Waves.
 
-## Interface funcional (v0.2.0)
+## Interface original preservada (v0.3.0)
 
-A imagem é somente a base visual. Sobre ela existem componentes JUCE reais, conectados por `SliderAttachment` e `ButtonAttachment` aos mesmos parâmetros que a DAW automatiza e que o DSP utiliza.
+A imagem original define o visual e a geometria da interface. Os componentes JUCE são transparentes ou usam sprites do próprio PNG; não há barra adicional, abas redesenhadas, painéis substitutos ou widgets genéricos. Apenas os valores, ponteiros, faders, LEDs e seleção mudam em seus lugares originais, ligados por `SliderAttachment` e `ButtonAttachment` aos parâmetros de áudio.
 
 - Arraste os oito faders e os knobs HP/LP; os valores numéricos também aceitam edição. Duplo clique restaura o padrão do parâmetro.
 - `S` e `M` controlam solo e mute; os atalhos à esquerda refletem os mesmos mutes. Mute prevalece sobre solo.
-- As abas superiores ou os nomes no rodapé das faixas selecionam o painel de Tape, Throw, Slap, Crowd, Plate, Room, Hall ou Space.
+- As setas FX originais e os números/letras no rodapé selecionam Tape, Throw, Slap, Crowd, Plate, Room, Hall ou Space.
 - Tape/Throw: taps esquerdo/direito independentes, feedback, sync, subdivisões em beats de semínima, offset e modulação. Trigger Mode habilita o gate manual/automatizável de Throw; Gate Open deixa entrar sinal novo, mantendo as repetições existentes quando fechado.
 - Slap: tempo, feedback, sync, modulação e VSO (0=manual; 1=7.5 IPS; 2=15 IPS; 3=30 IPS). VSO modifica o tempo quando sync está desligado.
 - Crowd: tempo base, feedback, sync e largura, com taps adicionais progressivamente atenuados.
@@ -17,13 +17,13 @@ A imagem é somente a base visual. Sobre ela existem componentes JUCE reais, con
 - Entrada, saída e mix são controles reais; os medidores mostram picos de entrada/saída, com queda visual suavizada.
 - A janela redimensiona todo o painel mantendo a proporção. Valores carregados por presets e automação atualizam os controles visuais.
 
-A organização segue a referência, com substituição dos controles estáticos por widgets legíveis. Não há edição, recorte, recompressão ou regeneração do PNG original.
+Os sprites são lidos em memória para desenhar os controles móveis. O PNG original não é editado, recomprimido, regenerado nem substituído. O teste visual compara amostras dos pixels da moldura, divisórias, logotipo, rótulos HP/LP e textura com o arquivo original em tamanho nativo. Uma captura separada `EpicLab-interface.png` acompanha a release.
 
 ## 100 presets e sessões
 
-O seletor superior oferece 10 perfis (Vocal, Guitar, Piano, Drums, Snare, Synth, Ambient, Bass, Bus, FX), cada um com 10 arranjos (Close, Slap, Eighth, Quarter, Dotted, Wide, Dark, Bright, Deep, Wash). As setas percorrem o banco. São presets próprios, sem equivalência com os presets Waves.
+Clique no logotipo CLA/EPIC original para abrir o seletor que oferece 10 perfis (Vocal, Guitar, Piano, Drums, Snare, Synth, Ambient, Bass, Bus, FX), cada um com 10 arranjos (Close, Slap, Eighth, Quarter, Dotted, Wide, Dark, Bright, Deep, Wash). Não há barra de presets sobre a imagem. São presets próprios, sem equivalência com os presets Waves.
 
-Cada preset aplica todos os parâmetros: níveis, filtros, mute/solo, ambos os taps, feedbacks, sync, divisões, offset, modulação, trigger, VSO, largura, sends, saídas diretas, decay/predelay/ratios, mix e ganhos. O plugin inicia em Vocal / Close. Alterações manuais posteriores são preservadas na sessão; reabrir a sessão restaura os valores editados, sem reaplicar o preset de fábrica. Selecionar outro preset substitui os valores atuais.
+Cada preset aplica todos os parâmetros: níveis, filtros, mute/solo, ambos os taps, feedbacks, sync, divisões, offset, modulação, trigger, VSO, largura, sends, saídas diretas, decay/predelay/ratios, mix e ganhos. O plugin inicia em Vocal / Close. O cadeado original bloqueia o valor de MIX ao trocar presets; o bloqueio é salvo na sessão. Alterações manuais posteriores são preservadas na sessão; reabrir a sessão restaura os valores editados, sem reaplicar o preset de fábrica. Selecionar outro preset substitui os valores atuais.
 
 ## Compilar no Windows
 
@@ -37,7 +37,7 @@ O CMake obtém JUCE 8.0.6. O script compila VST3, standalone e testes. Saída: `
 
 Extraia o ZIP da release e copie a pasta `.vst3` inteira para `C:\Program Files\Common Files\VST3`. Substitua a versão anterior com a DAW fechada e refaça a busca de plugins. A identidade do plugin é mantida para compatibilidade das sessões.
 
-O workflow `Windows VST3 x64` compila e executa os testes em Windows Server 2022; depois empacota `EpicLab-Windows-x64-VST3.zip` com `SHA256SUMS.txt`. Tags `v*` publicam automaticamente os arquivos na release após sucesso.
+O workflow `Windows VST3 x64` compila e executa os testes em Windows Server 2022; depois empacota `EpicLab-Windows-x64-VST3.zip` com `SHA256SUMS.txt` e uma captura separada da interface. Tags `v*` publicam automaticamente os arquivos na release após sucesso.
 
 ## Validação
 
@@ -49,7 +49,7 @@ cmake --build build-dsp
 ctest --test-dir build-dsp --output-on-failure
 ```
 
-O build completo acrescenta `interface_tests`: instancia o editor real, verifica que todos os parâmetros têm componentes interativos, testa movimentos dos sliders e atualização por automação, percorre os 100 presets e confere todos os controles, e verifica a restauração de ajustes editados. Esses testes não substituem audição e carregamento numa DAW Windows.
+O build completo acrescenta `interface_tests`: instancia o editor real, verifica que todos os parâmetros têm componentes interativos na geometria original, testa movimentos dos sliders e atualização por automação, percorre os 100 presets e confere todos os controles, e verifica a restauração de ajustes editados. Esses testes não substituem audição e carregamento numa DAW Windows.
 
 ## Limites
 
