@@ -167,6 +167,19 @@ int main(){
  int presetPixels=0;for(int y=328;y<376;y+=2)for(int x=1427;x<1546;x+=2)if(snapshot.getPixelAt(x,y)!=original.getPixelAt(x,y))++presetPixels;
  check(presetPixels>50,"PRESETS selector is actually drawn rather than transparent");
  check(combo->getText().contains("001")&&combo->getText().contains("Vocal"),"visible preset name and number");
+ // Every effect title must remain visible after clearing the LCD, including
+ // Throw/Space, whose old sprite path inherited the segment brush opacity.
+ for(int effect=0;effect<4;++effect){
+  select(false,effect);select(true,effect);
+  const auto titled=editor->createComponentSnapshot(editor->getLocalBounds());
+  for(const auto zone:{juce::Rectangle<int>(267,54,155,43),juce::Rectangle<int>(885,54,180,43)}){
+   int lit=0;for(int y=zone.getY();y<zone.getBottom();++y)for(int x=zone.getX();x<zone.getRight();++x){
+    const auto pixel=titled.getPixelAt(x,y);if(std::max(pixel.getRed(),pixel.getBlue())>140)++lit;
+   }
+   check(lit>200,"effect title must be legible: "+juce::String(effect));
+  }
+ }
+ select(false,1);select(true,3);snapshot=editor->createComponentSnapshot(editor->getLocalBounds());
  // Save a separate application screenshot; never modify the immutable source image.
  auto preview=juce::File::getCurrentWorkingDirectory().getChildFile("interface-preview.png");
  preview.deleteFile();if(auto stream=preview.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(snapshot,*stream),"write preview screenshot");}

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(EpicLab VERSION 0.5.0 LANGUAGES CXX)
+project(EpicLab VERSION 0.5.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(EPIC_DSP_ONLY "Build portable DSP tests without JUCE" OFF)

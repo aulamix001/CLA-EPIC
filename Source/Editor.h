@@ -363,8 +363,8 @@ public:
         const char* delayNames[]={"TAPE","THROW","SLAP","CROWD"};const char* reverbNames[]={"PLATE","ROOM","HALL","SPACE"};
         g.setColour(b);g.fillRect(202,58,38,44);caption(juce::String(delayIndex+1),{206,61,29,36},juce::Colour(0xff082231));
         g.setColour(r);g.fillRect(835,58,38,44);caption(juce::String(3-reverbIndex),{839,61,29,36},juce::Colour(0xff36140d));
-        if(delayIndex==1)g.drawImage(image,267,54,155,43,267,54,155,43);else caption(delayNames[delayIndex],{267,54,155,43},b);
-        if(reverbIndex==3)g.drawImage(image,884,54,190,43,884,54,190,43);else caption(reverbNames[reverbIndex],{885,54,180,43},r);
+        caption(delayNames[delayIndex],{267,54,155,43},b);
+        caption(reverbNames[reverbIndex],{885,54,180,43},r);
         caption("FX:",{434,62,35,22},b);caption("FX:",{1084,62,35,22},r);
         for(int i=0;i<4;++i){
             const int positions[]={476,511,1130,1165};const float cx=positions[i]+15.5f,cy=71;

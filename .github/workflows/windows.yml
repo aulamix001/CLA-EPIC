@@ -43,7 +43,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $options = @()
-          $notes = 'VST3 x64 with a visible PRESETS selector, 200 mapped factory presets plus 200 native vstpreset files. Editable numeric fields, functional arrows and aligned knob rings. Includes host lifecycle, native editor removal and real VST3 preset roundtrip tests. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Studio One 8.2.0.114903 removal fix remains unconfirmed in that DAW.'
+          $notes = 'VST3 x64 with a visible PRESETS selector, 200 mapped factory presets plus 200 native vstpreset files. Editable numeric fields, functional arrows and aligned knob rings. Includes host lifecycle, native editor removal and real VST3 preset roundtrip tests. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Preserves the removal fix reported as working by the user in Studio One 8.2.0.114903.'
           if ($env:GITHUB_REF_NAME -match '-rc') { $options += '--prerelease'; $notes = 'Release candidate for compatibility testing. ' + $notes }
           gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt dist/EpicLab-200-Presets.zip dist/EpicLab-interface.png dist/EpicLab-Slap-Room.png --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes $notes @options
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
