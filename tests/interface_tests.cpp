@@ -147,6 +147,38 @@ int main(){
  check(p->getProgramName(-1).isEmpty()&&p->getProgramName(200).isEmpty(),"invalid names are empty");
  check(p->getProgramName(99)=="FX / Wash","legacy slot 99 retains its name");
 
+ // Open the actual left drawer and exercise its filters and selection.
+ combo->showPopup();auto* browser=find(*editor,"presetBrowser");check(browser&&browser->isVisible(),"PRESETS opens the left drawer");
+ check(browser->getX()<30&&browser->getWidth()==340,"preset browser stays on the left");
+ auto* search=dynamic_cast<juce::TextEditor*>(find(*browser,"presetSearch"));
+ auto* category=dynamic_cast<juce::ComboBox*>(find(*browser,"presetCategory"));
+ auto* style=dynamic_cast<juce::ComboBox*>(find(*browser,"presetStyle"));
+ auto* list=dynamic_cast<juce::ListBox*>(find(*browser,"presetList"));
+ auto* favorites=dynamic_cast<juce::Button*>(find(*browser,"presetFavorites"));
+ auto* favoriteCurrent=dynamic_cast<juce::Button*>(find(*browser,"presetFavoriteCurrent"));
+ auto* closeBrowser=dynamic_cast<juce::Button*>(find(*browser,"presetBrowserClose"));
+ check(search&&category&&style&&list&&favorites&&favoriteCurrent&&closeBrowser,"browser search, filters, favorites and close controls exist");
+ check(list->getModel()->getNumRows()==200,"browser initially lists all 200 presets");
+ search->setText("bright",false);search->onTextChange();check(list->getModel()->getNumRows()==20,"search filters all 20 Bright presets");
+ category->setSelectedId(2,juce::sendNotificationSync);check(list->getModel()->getNumRows()==1,"category combines with search");
+ style->setSelectedId(2,juce::sendNotificationSync);check(list->getModel()->getNumRows()==0,"no matching preset gives an empty list");
+ search->clear();search->onTextChange();check(list->getModel()->getNumRows()==1,"category and type filters combine");
+ category->setSelectedId(1,juce::sendNotificationSync);style->setSelectedId(1,juce::sendNotificationSync);
+ combo->setSelectedId(184,juce::sendNotificationSync);favoriteCurrent->onClick();
+ favorites->setToggleState(true,juce::dontSendNotification);favorites->onClick();check(list->getModel()->getNumRows()==1,"favorites filter retains the marked preset");
+ favorites->setToggleState(false,juce::dontSendNotification);favorites->onClick();
+ search->setText("FX / Wash",false);search->onTextChange();check(list->getModel()->getNumRows()==1,"search finds a named preset");list->selectRow(0);
+ check(p->getCurrentProgram()==99,"browser selection applies the real processor preset");
+ auto* mappedFader=dynamic_cast<juce::Slider*>(find(*editor,"s0_level"));check(mappedFader&&std::abs(mappedFader->getValue()-epic::factoryPresets()[99].settings.strips[0].level)<.01,"browser maps the selected preset to faders");
+ search->clear();search->onTextChange();favorites->setToggleState(true,juce::dontSendNotification);favorites->onClick();list->selectRow(0);
+ check(p->getCurrentProgram()==183,"favorite selection loads its original preset index");
+ favoriteCurrent->onClick();check(list->getModel()->getNumRows()==0,"favorite can be removed");favorites->setToggleState(false,juce::dontSendNotification);favorites->onClick();
+ closeBrowser->onClick();check(!browser->isVisible(),"X closes preset drawer");combo->showPopup();check(browser->isVisible(),"PRESETS reopens drawer");combo->showPopup();check(!browser->isVisible(),"PRESETS toggles drawer closed");
+ for(int effect=0;effect<2;++effect){
+  select(false,effect);auto* offset=find(*editor,"s"+juce::String(effect)+"_offset");auto* arrow=find(*editor,"s"+juce::String(effect)+"_offset_down");
+  const juce::Rectangle<int> row(194,249,562,32);check(offset&&arrow&&row.contains(offset->getBounds())&&row.contains(arrow->getBounds()),"OFFSET value and arrows fit inside their dedicated frame");
+  check(!juce::Rectangle<int>(194,140,562,106).intersects(offset->getBounds()),"OFFSET does not cross a tap frame");
+ }
  // Preserve the frame, geometry and original PNG.
  combo->setSelectedId(1,juce::sendNotificationSync);
  dynamic_cast<juce::Button*>(find(*editor,"delayTab1"))->onClick();
@@ -188,6 +220,10 @@ int main(){
  dynamic_cast<juce::Button*>(find(*editor,"delayTab2"))->onClick();dynamic_cast<juce::Button*>(find(*editor,"reverbTab1"))->onClick();
  auto alternate=editor->createComponentSnapshot(editor->getLocalBounds());auto file=juce::File::getCurrentWorkingDirectory().getChildFile("interface-slap-room.png");file.deleteFile();
  if(auto stream=file.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(alternate,*stream),"write Slap/Room screenshot");}
+ combo->setSelectedId(1,juce::sendNotificationSync);category->setSelectedId(2,juce::sendNotificationSync);combo->showPopup();
+ auto browserFile=juce::File::getCurrentWorkingDirectory().getChildFile("interface-presets.png");browserFile.deleteFile();
+ if(auto stream=browserFile.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds()),*stream),"write left preset browser screenshot");}
+ closeBrowser->onClick();
  editor->setSize(840,540);editor->setSize(1882,1210);window.clearContentComponent();
  std::cout<<"PASS: all "<<visited.size()<<" live parameter controls, automation, 200 preset fader mappings, mouse/keyboard editing, 39 arrow pairs, fixed knob rings and edited state restore\n";
  return 0;

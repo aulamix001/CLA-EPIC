@@ -24,6 +24,7 @@ jobs:
           if (!(Test-Path "$bundle/Contents/x86_64-win/EpicLab.vst3")) { throw 'Windows x64 VST3 binary missing' }
           Copy-Item build-win/interface-preview.png dist/EpicLab-interface.png
           Copy-Item build-win/interface-slap-room.png dist/EpicLab-Slap-Room.png
+          Copy-Item build-win/interface-presets.png dist/EpicLab-Presets.png
           $presetFiles = @(Get-ChildItem build-win/factory-presets -Recurse -Filter *.vstpreset)
           if ($presetFiles.Count -ne 200) { throw 'Expected 200 exported native VST3 presets' }
           Compress-Archive -Path build-win/factory-presets/* -DestinationPath dist/EpicLab-200-Presets.zip
@@ -43,7 +44,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $options = @()
-          $notes = 'VST3 x64 with a visible PRESETS selector, 200 mapped factory presets plus 200 native vstpreset files. Editable numeric fields, functional arrows and aligned knob rings. Includes host lifecycle, native editor removal and real VST3 preset roundtrip tests. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Preserves the removal fix reported as working by the user in Studio One 8.2.0.114903.'
+          $notes = 'VST3 x64 with a left preset browser (search, categories, types, favorites), framed OFFSET controls, 200 mapped factory presets plus 200 native vstpreset files. Editable numeric fields, functional arrows and aligned knob rings. Includes host lifecycle, native editor removal and real VST3 preset roundtrip tests. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Preserves the removal fix reported as working by the user in Studio One 8.2.0.114903.'
           if ($env:GITHUB_REF_NAME -match '-rc') { $options += '--prerelease'; $notes = 'Release candidate for compatibility testing. ' + $notes }
-          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt dist/EpicLab-200-Presets.zip dist/EpicLab-interface.png dist/EpicLab-Slap-Room.png --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes $notes @options
+          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt dist/EpicLab-200-Presets.zip dist/EpicLab-interface.png dist/EpicLab-Slap-Room.png dist/EpicLab-Presets.png --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes $notes @options
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

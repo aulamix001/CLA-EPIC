@@ -256,6 +256,8 @@ public:
 };
 class SkinPresets final : public juce::ComboBox {
 public:
+    std::function<void()> onOpenBrowser;
+    void showPopup() override {if(onOpenBrowser)onOpenBrowser();else juce::ComboBox::showPopup();}
     SkinPresets(){for(auto* c:getChildren())c->setVisible(false);setName("200 presets de fabrica");}
     void paint(juce::Graphics& g) override {
         auto bounds=getLocalBounds();g.setColour(juce::Colour(0xff101c24));g.fillRoundedRectangle(bounds.toFloat().reduced(1),4);
@@ -266,6 +268,88 @@ public:
     }
     void resized() override {juce::ComboBox::resized();for(auto* c:getChildren())c->setVisible(false);}
 };
+// A child drawer keeps the host peer and audio graph unchanged while browsing.
+class PresetBrowser final : public juce::Component, private juce::ListBoxModel {
+    Processor& processor;
+    juce::Label title,categoryLabel,styleLabel,currentLabel,countLabel;
+    juce::TextButton close {"X"},favorites {"Favoritos"},favoriteCurrent {"Marcar favorito"};
+    juce::TextEditor search;
+    juce::ComboBox category,style;
+    juce::ListBox list {"Factory presets",this};
+    juce::StringArray favoriteIds;
+    std::vector<int> filtered;
+    int current=-1;bool updating=false;
+    bool isFavorite(int n) const {return favoriteIds.contains(juce::String(n));}
+    void toggleFavorite(int n){
+        const auto key=juce::String(n);if(isFavorite(n))favoriteIds.removeString(key);else favoriteIds.add(key);
+        processor.state.state.setProperty("uiFavoritePresets",favoriteIds.joinIntoString(","),nullptr);refresh();
+    }
+    void refresh(){
+        const juce::ScopedValueSetter<bool> guard(updating,true);filtered.clear();
+        const auto query=search.getText().trim();
+        for(int n=0;n<processor.getNumPrograms();++n){
+            const auto name=processor.getProgramName(n),group=name.upToFirstOccurrenceOf(" / ",false,false),arrangement=name.fromFirstOccurrenceOf(" / ",false,false);
+            if(category.getSelectedId()>1&&group!=category.getText())continue;
+            if(style.getSelectedId()>1&&arrangement!=style.getText())continue;
+            if(favorites.getToggleState()&&!isFavorite(n))continue;
+            if(query.isNotEmpty()&&!(juce::String(n+1).paddedLeft('0',3)+" "+name).containsIgnoreCase(query))continue;
+            filtered.push_back(n);
+        }
+        list.setVisible(!filtered.empty());list.updateContent();list.deselectAllRows();
+        for(int i=0;i<int(filtered.size());++i)if(filtered[size_t(i)]==current)list.selectRow(i);
+        countLabel.setText(juce::String(int(filtered.size()))+" / 200 presets",juce::dontSendNotification);
+        favoriteCurrent.setButtonText(isFavorite(current)?"Remover favorito":"Marcar favorito");
+        list.repaint();
+    }
+    int getNumRows() override {return int(filtered.size());}
+    void paintListBoxItem(int row,juce::Graphics& g,int width,int height,bool selected) override {
+        if(row<0||row>=int(filtered.size()))return;const int n=filtered[size_t(row)];
+        g.fillAll(selected?juce::Colour(0xff344957):juce::Colour(0xff202224));
+        g.setColour(selected?skin::blue():juce::Colour(0xffe0e2e4));g.setFont(14.f);
+        g.drawFittedText(juce::String(n+1).paddedLeft('0',3)+"  "+processor.getProgramName(n),8,0,width-40,height,juce::Justification::centredLeft,1,.8f);
+        juce::Path star;star.addStar({float(width-18),height*.5f},5,4.f,8.f);
+        g.setColour(isFavorite(n)?juce::Colour(0xffffcc72):juce::Colour(0xff697179));
+        if(isFavorite(n))g.fillPath(star);else g.strokePath(star,juce::PathStrokeType(1));
+    }
+    void selectedRowsChanged(int row) override {if(!updating&&row>=0&&row<int(filtered.size())&&onSelect)onSelect(filtered[size_t(row)]);}
+    void listBoxItemClicked(int row,const juce::MouseEvent& e) override {if(row>=0&&row<int(filtered.size())&&e.position.x>list.getWidth()-38)toggleFavorite(filtered[size_t(row)]);}
+public:
+    std::function<void(int)> onSelect;std::function<void()> onClose;
+    explicit PresetBrowser(Processor& p):processor(p){
+        setComponentID("presetBrowser");
+        auto label=[&](juce::Label& c,const juce::String& text){addAndMakeVisible(c);c.setText(text,juce::dontSendNotification);c.setColour(juce::Label::textColourId,juce::Colour(0xffcbd0d4));c.setFont(juce::Font(13.f));};
+        label(title,"EPICLAB - 200 PRESETS");title.setFont(juce::Font(15.f));
+        label(categoryLabel,"CATEGORIA");label(styleLabel,"TIPO");label(currentLabel,"");label(countLabel,"");
+        addAndMakeVisible(close);close.setComponentID("presetBrowserClose");close.onClick=[this]{if(onClose)onClose();};
+        addAndMakeVisible(search);search.setComponentID("presetSearch");search.setTextToShowWhenEmpty("Buscar preset...",juce::Colour(0xff969da3));search.setMultiLine(false);search.onTextChange=[this]{refresh();};
+        addAndMakeVisible(category);category.setComponentID("presetCategory");category.addItem("Todas as categorias",1);
+        addAndMakeVisible(style);style.setComponentID("presetStyle");style.addItem("Todos os tipos",1);
+        juce::StringArray groups,styles;for(int n=0;n<p.getNumPrograms();++n){const auto name=p.getProgramName(n);groups.addIfNotAlreadyThere(name.upToFirstOccurrenceOf(" / ",false,false));styles.addIfNotAlreadyThere(name.fromFirstOccurrenceOf(" / ",false,false));}
+        for(int i=0;i<groups.size();++i)category.addItem(groups[i],i+2);for(int i=0;i<styles.size();++i)style.addItem(styles[i],i+2);
+        category.setSelectedId(1,juce::dontSendNotification);style.setSelectedId(1,juce::dontSendNotification);category.onChange=[this]{refresh();};style.onChange=[this]{refresh();};
+        addAndMakeVisible(favorites);favorites.setComponentID("presetFavorites");favorites.setClickingTogglesState(true);favorites.onClick=[this]{refresh();};
+        addAndMakeVisible(favoriteCurrent);favoriteCurrent.setComponentID("presetFavoriteCurrent");favoriteCurrent.onClick=[this]{if(current>=0)toggleFavorite(current);};
+        addAndMakeVisible(list);list.setComponentID("presetList");list.setRowHeight(32);list.setColour(juce::ListBox::backgroundColourId,juce::Colour(0xff202224));list.setOutlineThickness(0);
+        search.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff17191b));search.setColour(juce::TextEditor::textColourId,juce::Colours::white);
+        for(auto* combo:{&category,&style}){combo->setColour(juce::ComboBox::backgroundColourId,juce::Colour(0xff303438));combo->setColour(juce::ComboBox::textColourId,juce::Colours::white);}
+        for(auto* button:{&close,&favorites,&favoriteCurrent}){button->setColour(juce::TextButton::buttonColourId,juce::Colour(0xff35393d));button->setColour(juce::TextButton::buttonOnColourId,juce::Colour(0xff3d6178));}
+        favoriteIds=juce::StringArray::fromTokens(processor.state.state.getProperty("uiFavoritePresets").toString(),",","");
+        setCurrentProgram(p.getCurrentProgram());
+    }
+    void setCurrentProgram(int n){if(current==n)return;current=n;currentLabel.setText(juce::String(n+1).paddedLeft('0',3)+"  "+processor.getProgramName(n),juce::dontSendNotification);refresh();}
+    void paint(juce::Graphics& g) override {
+        g.fillAll(juce::Colour(0xff292c2f));g.setColour(juce::Colour(0xff6d767d));g.drawRect(getLocalBounds(),1);
+        if(filtered.empty()){g.setColour(juce::Colour(0xffb3bbc1));g.setFont(14.f);g.drawText("Nenhum preset encontrado",list.getBounds().reduced(8),juce::Justification::centredTop);}
+    }
+    void resized() override {
+        auto r=getLocalBounds().reduced(12);auto header=r.removeFromTop(28);close.setBounds(header.removeFromRight(28));title.setBounds(header);r.removeFromTop(10);
+        search.setBounds(r.removeFromTop(32));r.removeFromTop(10);categoryLabel.setBounds(r.removeFromTop(18));category.setBounds(r.removeFromTop(30));r.removeFromTop(8);
+        styleLabel.setBounds(r.removeFromTop(18));style.setBounds(r.removeFromTop(30));r.removeFromTop(10);
+        auto buttons=r.removeFromTop(30);favorites.setBounds(buttons.removeFromLeft(94));buttons.removeFromLeft(6);favoriteCurrent.setBounds(buttons);r.removeFromTop(10);
+        currentLabel.setBounds(r.removeFromTop(24));countLabel.setBounds(r.removeFromTop(22));r.removeFromTop(6);list.setBounds(r);
+    }
+};
+
 class LiveSurface final : public juce::Component,private juce::Timer {
     Processor& processor;juce::Image image=skin::original();
     std::vector<std::unique_ptr<SkinSlider>> common,delayFields,reverbFields;
@@ -300,7 +384,7 @@ class LiveSurface final : public juce::Component,private juce::Timer {
             number(delayFields,delayArrows,id("time2"),{628,143,105,36},"ms",c,733);
             number(delayFields,delayArrows,id("feedback2"),{574,213,97,31},"%",c,671);
             number(delayFields,delayArrows,id("beats2"),{599,184,112,28},"",c,734);
-            number(delayFields,delayArrows,id("offset"),{493,246,83,29},"%",c,577);
+            number(delayFields,delayArrows,id("offset"),{493,250,83,28},"%",c,577);
             button(delayButtons,id("sync2"),{490,187,38,25},{204,187,38,25},c);
         }
         if(i==1){button(delayButtons,id("triggerEnabled"),{339,115,38,18},{339,115,38,18},c);button(delayButtons,id("trigger"),{381,115,27,18},{381,115,27,18},c);}
@@ -391,9 +475,10 @@ public:
         caption("MOD",{604,59,56,21},b);caption("MOD",{1230,59,56,21},r);
         caption("0",{664,113,14,14},b);caption("100",{720,113,31,14},b);caption("0",{1290,113,14,14},r);caption("100",{1347,113,31,14},r);
         if(delayIndex==1)caption("TRIGGER",{260,114,73,19},b);
-        box({194,140,274,123},b);box({482,140,274,123},b);
+        box({194,140,274,delayIndex<2?106:123},b);box({482,140,274,delayIndex<2?106:123},b);
+        if(delayIndex<2)box({194,249,562,32},b);
         caption("TAP 1:",{204,147,116,30},b);caption("SYNC:",{245,187,65,24},b);caption("FDBK:",{203,216,79,26},b);
-        if(delayIndex<2){caption("TAP 2:",{490,147,116,30},b);caption("SYNC:",{531,187,65,24},b);caption("FDBK:",{490,216,79,26},b);caption("OFFSET:",{392,248,95,24},b);}
+        if(delayIndex<2){caption("TAP 2:",{490,147,116,30},b);caption("SYNC:",{531,187,65,24},b);caption("FDBK:",{490,216,79,26},b);caption("OFFSET:",{392,252,95,24},b);}
         else caption(delayIndex==2?"VSO:":"WIDTH:",{490,147,126,30},b);
         caption("ROUTING",{410,350,140,24},b);
         const int routeX[]={190,337,485,632};
@@ -424,7 +509,7 @@ public:
     }
 };
 class Editor final : public juce::AudioProcessorEditor,private juce::Timer {
-    Processor& processor;LiveSurface surface;SkinPresets presets;SkinAction presetLogoShortcut;juce::TooltipWindow tooltips {this,650};int displayedProgram=-1;
+    Processor& processor;LiveSurface surface;SkinPresets presets;PresetBrowser browser;SkinAction presetLogoShortcut;juce::TooltipWindow tooltips {this,650};int displayedProgram=-1;
     void compatibleRenderer(){
        #if JUCE_WINDOWS
         if(auto* peer=getPeer()){
@@ -435,16 +520,21 @@ class Editor final : public juce::AudioProcessorEditor,private juce::Timer {
     }
     void timerCallback() override {
         const int n=processor.getCurrentProgram();presets.setSelectedId(n+1,juce::dontSendNotification);
+        browser.setCurrentProgram(n);
         presets.setTooltip("200 PRESETS: "+processor.getProgramName(n)+" - selecione no menu");
         if(n!=displayedProgram){surface.showPreset(n);displayedProgram=n;}
     }
 public:
-    explicit Editor(Processor& p):AudioProcessorEditor(p),processor(p),surface(p){
+    explicit Editor(Processor& p):AudioProcessorEditor(p),processor(p),surface(p),browser(p){
         addAndMakeVisible(surface);surface.setComponentID("skinSurface");surface.setBounds(0,0,1567,1004);
         addAndMakeVisible(presets);presets.setComponentID("factoryPresets");
         surface.addAndMakeVisible(presetLogoShortcut);presetLogoShortcut.setBounds(1427,245,119,79);presetLogoShortcut.setComponentID("presetLogoShortcut");presetLogoShortcut.onClick=[this]{presets.showPopup();};
         for(int i=0;i<p.getNumPrograms();++i)presets.addItem(juce::String(i+1).paddedLeft('0',3)+" "+p.getProgramName(i),i+1);
         presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);displayedProgram=-1;timerCallback();};
+        addChildComponent(browser);
+        browser.onSelect=[this](int n){presets.setSelectedId(n+1,juce::sendNotificationSync);};
+        browser.onClose=[this]{browser.setVisible(false);};
+        presets.onOpenBrowser=[this]{browser.setVisible(!browser.isVisible());if(browser.isVisible())browser.toFront(true);};
         timerCallback();setSize(1100,759);setResizable(false,false);startTimerHz(10);
     }
     ~Editor() override {stopTimer();presets.hidePopup();juce::PopupMenu::dismissAllActiveMenus();}
@@ -453,6 +543,7 @@ public:
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colours::black);}
     void resized() override {
         presets.setBounds(12,6,getWidth()-24,42);
+        browser.setBounds(12,54,340,juce::jmax(350,getHeight()-66));
         const float scale=std::min(float(getWidth())/1567.f,float(getHeight()-54)/1004.f);
         surface.setTransform(juce::AffineTransform::scale(scale).translated((getWidth()-1567*scale)*.5f,54+(getHeight()-54-1004*scale)*.5f));
     }
