@@ -92,6 +92,9 @@ int main(){
  check(p->getCurrentProgram()==99,"session restores preset index");
 
  // Preserve the original geometry: no toolbar, replacement panels or generic skin.
+ p->setCurrentProgram(0);
+ dynamic_cast<juce::Button*>(find(*editor,"delayTab1"))->onClick();
+ dynamic_cast<juce::Button*>(find(*editor,"reverbTab3"))->onClick();
  editor->setSize(1568,1008);
  auto original=juce::ImageCache::getFromMemory(BinaryData::imagem_png,BinaryData::imagem_pngSize);
  auto snapshot=editor->createComponentSnapshot(editor->getLocalBounds());

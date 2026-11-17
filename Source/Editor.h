@@ -39,7 +39,7 @@ public:
     enum Kind {number,knob,fader,route};
 private:
     Kind kind;juce::Rectangle<int> source,thumb;juce::Image image=skin::original();juce::Colour colour;
-    juce::String routeLetter;float emptyX=0;juce::Point<int> down;
+    juce::String routeLetter;float emptyX=0;juce::Point<int> down;double downValue=0;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
 public:
     SkinSlider(Processor& p,const juce::String& id,Kind k,juce::Rectangle<int> rect,juce::Colour c,juce::Rectangle<int> sprite={},float cleanX=0,juce::String letter={})
@@ -50,9 +50,9 @@ public:
         attachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.state,id,*this);
         setDoubleClickReturnValue(true,p.state.getParameter(id)->convertFrom0to1(p.state.getParameter(id)->getDefaultValue()));
     }
-    void mouseDown(const juce::MouseEvent& e) override {down=e.getPosition();juce::Slider::mouseDown(e);}
+    void mouseDown(const juce::MouseEvent& e) override {down=e.getPosition();downValue=getValue();juce::Slider::mouseDown(e);}
     void mouseUp(const juce::MouseEvent& e) override {
-        if(kind==route && e.getPosition().getDistanceFrom(down)<3)setValue(getValue()>0?0:100,juce::sendNotificationSync);
+        if(kind==route && e.getPosition().getDistanceFrom(down)<3)setValue(downValue>0?0:100,juce::sendNotificationSync);
         juce::Slider::mouseUp(e);
     }
     void paint(juce::Graphics& g) override {
@@ -95,8 +95,18 @@ public:
     void paintButton(juce::Graphics& g,bool,bool) override {
         if(transparent)return;
         if(!sprite.isEmpty())g.drawImage(image,0,0,getWidth(),getHeight(),sprite.getX(),sprite.getY(),sprite.getWidth(),sprite.getHeight());
-        if(getToggleState()){g.setColour(colour.withAlpha(.45f));g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(2),2);}
-        else if(sprite.isEmpty()){g.setColour(juce::Colours::black.withAlpha(.7f));g.fillRect(getLocalBounds().reduced(1));}
+        const auto id=getComponentID();
+        if(id.endsWith("_sync")||id.endsWith("_sync2")||id.endsWith("_triggerEnabled")){
+            skin::display(g,getLocalBounds().reduced(2),getToggleState()?"ON":"OFF",getToggleState()?colour:colour.withAlpha(.5f));
+        } else if(sprite.getHeight()==36){
+            g.drawImage(image,0,0,getWidth(),getHeight(),sprite.getX()<80?32:89,275,51,36);
+            if(getToggleState()){g.setColour(colour.withAlpha(.45f));g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(2),2);}
+            g.setColour(getToggleState()?colour.withAlpha(.7f):juce::Colour(0xff17252d));g.fillRect(getWidth()/2-11,5,23,26);
+            const int index=(sprite.getY()-275)/43;
+            const auto label=sprite.getX()<80?juce::String(index+1):juce::String::charToString(juce::juce_wchar('A'+index));
+            skin::digital(g,label,{float(getWidth()/2-9),6,19,24},getToggleState()?juce::Colours::black:colour.withAlpha(.7f));
+        } else if(getToggleState()){g.setColour(colour.withAlpha(.45f));g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(2),2);}
+        else if(sprite.isEmpty()||id.endsWith("_direct")){g.setColour(juce::Colours::black.withAlpha(.7f));g.fillRect(getLocalBounds().reduced(1));}
     }
 };
 class SkinAction final : public juce::TextButton {
@@ -191,9 +201,8 @@ public:
     void paint(juce::Graphics& g) override {
         g.drawImage(image,getLocalBounds().toFloat());const auto b=skin::blue(),r=skin::red();
         const char* delayNames[]={"TAPE","THROW","SLAP","CROWD"};const char* reverbNames[]={"PLATE","ROOM","HALL","SPACE"};
-        skin::display(g,{269,54,178,43},delayNames[delayIndex],b);skin::display(g,{885,54,190,43},reverbNames[reverbIndex],r);
-        skin::display(g,{837,60,23,35},juce::String(3-reverbIndex),r);
-        skin::display(g,{207,60,23,35},juce::String(delayIndex+1),b);
+        if(delayIndex!=1){skin::display(g,{269,54,178,43},delayNames[delayIndex],b);skin::display(g,{207,60,23,35},juce::String(delayIndex+1),b);}
+        if(reverbIndex!=3){skin::display(g,{885,54,190,43},reverbNames[reverbIndex],r);skin::display(g,{837,60,23,35},juce::String(3-reverbIndex),r);}
         for(int i=0;i<8;++i){const int x=skin::stripX(i);skin::display(g,{x+24,411,100,28},juce::String(processor.value(Processor::id(i,"level")),1),i<4?b:r);}
         skin::display(g,{1442,412,84,28},juce::String(processor.value("mix"),1),b);
         skin::display(g,{589,96,68,29},juce::String(processor.value(Processor::id(delayIndex,"mod")),1),b);
