@@ -127,7 +127,7 @@ public:
             hp[i]=std::make_unique<BoundSlider>(p,Processor::id(i,"hp"),"HP Hz");
             lp[i]=std::make_unique<BoundSlider>(p,Processor::id(i,"lp"),"LP Hz");
             mute[i]=std::make_unique<BoundButton>(p,Processor::id(i,"mute"),"M");solo[i]=std::make_unique<BoundButton>(p,Processor::id(i,"solo"),"S");
-            quickMute[i]=std::make_unique<BoundButton>(p,Processor::id(i,"mute"),juce::String(i<4?i+1:i-3));
+            quickMute[i]=std::make_unique<BoundButton>(p,Processor::id(i,"mute"),(i<4?juce::String(i+1):juce::String::charToString(juce::juce_wchar('A'+i-4))));
             addAndMakeVisible(*level[i]);addAndMakeVisible(*hp[i]);addAndMakeVisible(*lp[i]);addAndMakeVisible(*mute[i]);addAndMakeVisible(*solo[i]);addAndMakeVisible(*quickMute[i]);
             const auto colour=i<4?juce::Colour(0xff61ceff):juce::Colour(0xffff624c);
             level[i]->slider.setColour(juce::Slider::thumbColourId,colour);
@@ -136,6 +136,13 @@ public:
             select[i].onClick=[this,i]{if(i<4)delays.select(i);else reverbs.select(i-4);};addAndMakeVisible(select[i]);
         }
         startTimerHz(25);
+    }
+    void showPreset(int index) {
+        const auto& s=epic::factoryPresets()[size_t(juce::jlimit(0,99,index))].settings;
+        int d=0,r=4;
+        for(int i=1;i<4;++i)if(!s.strips[i].mute&&(s.strips[d].mute||s.strips[i].level>s.strips[d].level))d=i;
+        for(int i=5;i<8;++i)if(!s.strips[i].mute&&(s.strips[r].mute||s.strips[i].level>s.strips[r].level))r=i;
+        delays.select(d);reverbs.select(r-4);
     }
     ~LiveSurface() override {setLookAndFeel(nullptr);}
     void paint(juce::Graphics& g) override {
@@ -170,17 +177,22 @@ class Editor final : public juce::AudioProcessorEditor, private juce::Timer {
     juce::TextButton previous {"<"},next {">"};
     LiveSurface surface;
     juce::TooltipWindow tooltips {this,650};
-    void timerCallback() override {presets.setSelectedId(processor.getCurrentProgram()+1,juce::dontSendNotification);}
+    int displayedProgram=-1;
+    void timerCallback() override {
+        const int index=processor.getCurrentProgram();
+        presets.setSelectedId(index+1,juce::dontSendNotification);
+        if(index!=displayedProgram){surface.showPreset(index);displayedProgram=index;}
+    }
 public:
     explicit Editor(Processor& p):AudioProcessorEditor(p),processor(p),surface(p) {
         presets.setComponentID("factoryPresets");addAndMakeVisible(presets);addAndMakeVisible(previous);addAndMakeVisible(next);addAndMakeVisible(surface);
         for(int i=0;i<p.getNumPrograms();++i)presets.addItem(p.getProgramName(i),i+1);
         presets.setSelectedId(p.getCurrentProgram()+1,juce::dontSendNotification);
-        presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);};
+        presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);displayedProgram=-1;timerCallback();};
         previous.onClick=[this]{processor.setCurrentProgram((processor.getCurrentProgram()+99)%100);timerCallback();};
         next.onClick=[this]{processor.setCurrentProgram((processor.getCurrentProgram()+1)%100);timerCallback();};
         surface.setBounds(0,0,1568,1008);
-        setSize(1100,748);setResizable(true,true);setResizeLimits(900,620,1882,1250);startTimerHz(10);
+        timerCallback();setSize(1100,748);setResizable(true,true);setResizeLimits(900,620,1882,1250);startTimerHz(10);
     }
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff101418));}
     void resized() override {

@@ -77,6 +77,7 @@ public:
     bool isBusesLayoutSupported(const BusesLayout& b) const override { return b.getMainInputChannelSet()==juce::AudioChannelSet::stereo() && b.getMainOutputChannelSet()==juce::AudioChannelSet::stereo(); }
     void processBlock(juce::AudioBuffer<float>& b,juce::MidiBuffer&) override {
         juce::ScopedNoDenormals guard;
+        if(b.getNumChannels()<2 || b.getNumSamples()==0)return;
         epic::Settings s; s.input=master[0]->load();s.output=master[1]->load();s.mix=master[2]->load();
         for(int i=0;i<8;++i) {
             auto v=[&](int field){return cached[i][field]->load();};
