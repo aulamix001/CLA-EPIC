@@ -79,7 +79,7 @@ int main(){
  // Edited values survive state restore rather than reloading the factory defaults.
  std::vector<float> saved;for(auto* base:p->getParameters()){base->setValueNotifyingHost(.37f);saved.push_back(base->getValue());}
  juce::MemoryBlock block;p->getStateInformation(block);p->setCurrentProgram(0);p->setStateInformation(block.getData(),int(block.getSize()));
- for(int i=0;i<p->getParameters().size();++i)check(std::abs(p->getParameters()[i]->getValue()-saved[size_t(i)])<.0001f,"session restores edited parameters");
+ for(int i=0;i<p->getParameters().size();++i)check(std::abs(p->getParameters()[i]->getValue()-saved[size_t(i)])<.0001f,"session restores edited parameters: "+p->getParameters()[i]->getName(100)+" expected="+juce::String(saved[size_t(i)],8)+" actual="+juce::String(p->getParameters()[i]->getValue(),8));
  check(p->getCurrentProgram()==99,"session restores preset index");
  editor->setSize(900,620);editor->setSize(1882,1250);
  std::cout<<"PASS: all "<<visited.size()<<" live parameter controls, automation, 100 preset fader mappings and edited state restore\n";
