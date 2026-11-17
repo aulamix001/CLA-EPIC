@@ -148,7 +148,7 @@ int main(){
  check(p->getProgramName(99)=="FX / Wash","legacy slot 99 retains its name");
 
  // Open the actual left drawer and exercise its filters and selection.
- combo->showPopup();auto* browser=find(*editor,"presetBrowser");check(browser&&browser->isVisible(),"PRESETS opens the left drawer");
+ auto headerClick=clickEvent(*combo);combo->mouseDown(headerClick);combo->mouseUp(headerClick);auto* browser=find(*editor,"presetBrowser");check(browser&&browser->isVisible(),"PRESETS opens the left drawer");
  check(browser->getX()<30&&browser->getWidth()==340,"preset browser stays on the left");
  auto* search=dynamic_cast<juce::TextEditor*>(find(*browser,"presetSearch"));
  auto* category=dynamic_cast<juce::ComboBox*>(find(*browser,"presetCategory"));
@@ -173,7 +173,7 @@ int main(){
  search->clear();search->onTextChange();favorites->setToggleState(true,juce::dontSendNotification);favorites->onClick();list->selectRow(0);
  check(p->getCurrentProgram()==183,"favorite selection loads its original preset index");
  favoriteCurrent->onClick();check(list->getModel()->getNumRows()==0,"favorite can be removed");favorites->setToggleState(false,juce::dontSendNotification);favorites->onClick();
- closeBrowser->onClick();check(!browser->isVisible(),"X closes preset drawer");combo->showPopup();check(browser->isVisible(),"PRESETS reopens drawer");combo->showPopup();check(!browser->isVisible(),"PRESETS toggles drawer closed");
+ closeBrowser->onClick();check(!browser->isVisible(),"X closes preset drawer");combo->mouseDown(headerClick);combo->mouseUp(headerClick);check(browser->isVisible(),"PRESETS mouse click reopens drawer");combo->mouseDown(headerClick);combo->mouseUp(headerClick);check(!browser->isVisible(),"PRESETS mouse click toggles drawer closed");
  for(int effect=0;effect<2;++effect){
   select(false,effect);auto* offset=find(*editor,"s"+juce::String(effect)+"_offset");auto* arrow=find(*editor,"s"+juce::String(effect)+"_offset_down");
   const juce::Rectangle<int> row(194,249,562,32);check(offset&&arrow&&row.contains(offset->getBounds())&&row.contains(arrow->getBounds()),"OFFSET value and arrows fit inside their dedicated frame");

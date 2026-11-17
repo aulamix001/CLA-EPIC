@@ -255,9 +255,13 @@ public:
     void paintButton(juce::Graphics&,bool,bool) override {} // Original icon is already in the skin.
 };
 class SkinPresets final : public juce::ComboBox {
+    bool drawerPress=false;
 public:
     std::function<void()> onOpenBrowser;
     void showPopup() override {if(onOpenBrowser)onOpenBrowser();else juce::ComboBox::showPopup();}
+    void mouseDown(const juce::MouseEvent& e) override {if(!onOpenBrowser){juce::ComboBox::mouseDown(e);return;}drawerPress=isEnabled()&&!e.mods.isPopupMenu();}
+    void mouseDrag(const juce::MouseEvent& e) override {if(!onOpenBrowser)juce::ComboBox::mouseDrag(e);}
+    void mouseUp(const juce::MouseEvent& e) override {if(!onOpenBrowser){juce::ComboBox::mouseUp(e);return;}const bool pressed=drawerPress;drawerPress=false;if(pressed&&getLocalBounds().contains(e.getPosition()))showPopup();}
     SkinPresets(){for(auto* c:getChildren())c->setVisible(false);setName("200 presets de fabrica");}
     void paint(juce::Graphics& g) override {
         auto bounds=getLocalBounds();g.setColour(juce::Colour(0xff101c24));g.fillRoundedRectangle(bounds.toFloat().reduced(1),4);
