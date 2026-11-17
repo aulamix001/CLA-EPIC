@@ -29,8 +29,12 @@ inline void digital(juce::Graphics& g,juce::String text,juce::Rectangle<float> a
         if(c=='.'){g.setColour(colour);g.fillEllipse(x+5*scale,top+30*scale,3*scale,3*scale);}
     }
 }
-inline void display(juce::Graphics& g,juce::Rectangle<int> rect,const juce::String& value,juce::Colour c){
-    g.setColour(c==red()?juce::Colour(0xff20100c):juce::Colour(0xff07151e));g.fillRect(rect);
+inline void display(juce::Graphics& g,juce::Rectangle<int> rect,const juce::String& value,juce::Colour c,bool grid=true){
+    if(grid){
+        static const auto blueTile=original().getClippedImage({184,136,16,8});
+        static const auto redTile=original().getClippedImage({818,250,16,8});
+        g.setTiledImageFill(c==red()?redTile:blueTile,float(rect.getX()),float(rect.getY()),1.f);g.fillRect(rect);
+    }else{g.setColour(juce::Colour(0xff071017));g.fillRect(rect);}
     digital(g,value,rect.toFloat().reduced(2),c);
 }
 }
@@ -219,8 +223,8 @@ public:
         const char* delayNames[]={"TAPE","THROW","SLAP","CROWD"};const char* reverbNames[]={"PLATE","ROOM","HALL","SPACE"};
         if(delayIndex!=1){skin::display(g,{269,54,178,43},delayNames[delayIndex],b);skin::display(g,{207,60,23,35},juce::String(delayIndex+1),b);}
         if(reverbIndex!=3){skin::display(g,{885,54,190,43},reverbNames[reverbIndex],r);skin::display(g,{837,60,23,35},juce::String(3-reverbIndex),r);}
-        for(int i=0;i<8;++i){const int x=skin::stripX(i);skin::display(g,{x+24,411,100,28},juce::String(processor.value(Processor::id(i,"level")),1),i<4?b:r);}
-        skin::display(g,{1442,412,84,28},juce::String(processor.value("mix"),1),b);
+        for(int i=0;i<8;++i){const int x=skin::stripX(i);skin::display(g,{x+24,411,100,28},juce::String(processor.value(Processor::id(i,"level")),1),i<4?b:r,false);}
+        skin::display(g,{1442,412,84,28},juce::String(processor.value("mix"),1),b,false);
         skin::display(g,{589,96,68,29},juce::String(processor.value(Processor::id(delayIndex,"mod")),1),b);
         skin::display(g,{1215,96,68,29},juce::String(processor.value(Processor::id(reverbIndex+4,"mod")),1),r);
         skin::display(g,{1214,191,100,38},juce::String(processor.value(Processor::id(reverbIndex+4,"decay")),2),r);
