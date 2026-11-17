@@ -144,6 +144,8 @@ class LiveSurface final : public juce::Component,private juce::Timer {
     SkinAction delayPrevious,delayNext,reverbPrevious,reverbNext,lock;
     int delayIndex=1,reverbIndex=3;
     std::array<float,4> meterValues {};
+    std::vector<std::pair<std::atomic<float>*,float>> observed;
+    bool lastMixLock=false;
     SkinSlider& slider(std::vector<std::unique_ptr<SkinSlider>>& list,const juce::String& id,SkinSlider::Kind kind,juce::Rectangle<int> rect,juce::Colour colour,juce::Rectangle<int> thumb={},float cleanX=0,juce::String letter={}){
         auto c=std::make_unique<SkinSlider>(processor,id,kind,rect,colour,thumb,cleanX,letter);auto& result=*c;addAndMakeVisible(*c);list.push_back(std::move(c));return result;
     }
@@ -177,10 +179,20 @@ class LiveSurface final : public juce::Component,private juce::Timer {
         if(r==3){slider(reverbFields,id("lowRatio"),SkinSlider::number,{1018,316,56,27},c);slider(reverbFields,id("highRatio"),SkinSlider::number,{1252,316,56,27},c);}
         repaint();
     }
-    void timerCallback() override {for(int i=0;i<4;++i)meterValues[i]=std::max(processor.meters[i].load(),meterValues[i]*.85f);repaint();}
+    void timerCallback() override {
+        bool changed=false;
+        for(auto& item:observed){const float value=item.first->load();if(value!=item.second){item.second=value;changed=true;}}
+        const bool locked=processor.mixLocked.load();changed|=locked!=lastMixLock;lastMixLock=locked;
+        if(changed)repaint();
+        for(int i=0;i<4;++i){
+            const float next=std::max(processor.meters[i].load(),meterValues[i]*.8f);
+            if(std::abs(next-meterValues[i])>1.e-5f){meterValues[i]=next;repaint(i<2?juce::Rectangle<int>(74,32,52,154):juce::Rectangle<int>(1445,32,53,154));}
+        }
+    }
 public:
     explicit LiveSurface(Processor& p):processor(p){
         setInterceptsMouseClicks(false,true);const auto b=skin::blue(),r=skin::red();
+        for(const auto& item:p.values)observed.emplace_back(item.second,item.second->load());
         static const int thumbY[]={690,655,643,757,720,630,710,635};
         for(int i=0;i<8;++i){const int x=skin::stripX(i),cx=x+72;auto id=[&](const char* f){return Processor::id(i,f);};const auto colour=i<4?b:r;
             slider(common,id("level"),SkinSlider::fader,{cx-22,578,44,342},colour,{cx-18,thumbY[i],36,64},float(cx-64));
@@ -208,16 +220,20 @@ public:
         reverbNext.setBounds(1139,52,31,38);reverbNext.onClick=[this]{selectReverb((reverbIndex+1)%4);};
         for(auto* c:{&delayPrevious,&delayNext,&reverbPrevious,&reverbNext})addAndMakeVisible(*c);
         lock.setBounds(1510,451,32,33);lock.setComponentID("mixLock");lock.setTooltip("Bloquear MIX ao trocar preset");lock.onClick=[this]{processor.mixLocked.store(!processor.mixLocked.load());repaint();};addAndMakeVisible(lock);
-        selectDelay(1);selectReverb(3);startTimerHz(25);
+        selectDelay(1);selectReverb(3);startTimerHz(20);
     }
+    ~LiveSurface() override {stopTimer();}
     void showPreset(int index){
-        const auto& s=epic::factoryPresets()[size_t(juce::jlimit(0,99,index))].settings;int d=0,r=4;
+        const auto& s=epic::factoryPresets()[size_t(juce::jlimit(0,epic::factoryPresetCount-1,index))].settings;int d=0,r=4;
         for(int i=1;i<4;++i)if(!s.strips[i].mute&&(s.strips[d].mute||s.strips[i].level>s.strips[d].level))d=i;
         for(int i=5;i<8;++i)if(!s.strips[i].mute&&(s.strips[r].mute||s.strips[i].level>s.strips[r].level))r=i;
         selectDelay(d);selectReverb(r-4);
     }
     void paint(juce::Graphics& g) override {
         g.drawImage(image,getLocalBounds().toFloat());const auto b=skin::blue(),r=skin::red();
+        const auto clip=g.getClipBounds();
+        const bool metersOnly=juce::Rectangle<int>(74,32,52,154).contains(clip)||juce::Rectangle<int>(1445,32,53,154).contains(clip);
+        if(!metersOnly){
         const char* delayNames[]={"TAPE","THROW","SLAP","CROWD"};const char* reverbNames[]={"PLATE","ROOM","HALL","SPACE"};
         if(delayIndex!=1){skin::display(g,{269,54,178,43},delayNames[delayIndex],b);skin::display(g,{207,60,23,35},juce::String(delayIndex+1),b);}
         if(reverbIndex!=3){skin::display(g,{885,54,190,43},reverbNames[reverbIndex],r);skin::display(g,{837,60,23,35},juce::String(3-reverbIndex),r);}
@@ -238,6 +254,7 @@ public:
             const bool originalActive=i==1||i==7;
             if(active!=originalActive){g.setColour(active?(i<4?b:r).withAlpha(.45f):juce::Colours::black.withAlpha(.65f));g.fillRect(x+2,926,145,34);}
         }
+        }
         for(int side=0;side<2;++side)for(int ch=0;ch<2;++ch)for(int led=0;led<7;++led){
             const float db=juce::Decibels::gainToDecibels(meterValues[size_t(side*2+ch)],-60.f);const bool on=db>=-36+led*6;
             g.setColour(on?(led>4?juce::Colours::orangered:juce::Colours::limegreen):juce::Colour(0xff242620));
@@ -248,6 +265,14 @@ public:
 };
 class Editor final : public juce::AudioProcessorEditor,private juce::Timer {
     Processor& processor;LiveSurface surface;SkinPresets presets;juce::TooltipWindow tooltips {this,650};int displayedProgram=-1;
+    void compatibleRenderer(){
+       #if JUCE_WINDOWS
+        if(auto* peer=getPeer()){
+            const int software=peer->getAvailableRenderingEngines().indexOf("Software Renderer");
+            if(software>=0&&peer->getCurrentRenderingEngine()!=software)peer->setCurrentRenderingEngine(software);
+        }
+       #endif
+    }
     void timerCallback() override {
         const int n=processor.getCurrentProgram();presets.setSelectedId(n+1,juce::dontSendNotification);
         presets.setTooltip("PRESETS: "+processor.getProgramName(n)+" - clique no logotipo");
@@ -258,11 +283,13 @@ public:
         addAndMakeVisible(surface);surface.setBounds(0,0,1567,1004);
         // Transparent combo occupies the existing logo, adding no toolbar or decoration.
         surface.addAndMakeVisible(presets);presets.setBounds(1427,245,119,79);presets.setComponentID("factoryPresets");
-        for(int i=0;i<100;++i)presets.addItem(p.getProgramName(i),i+1);
+        for(int i=0;i<p.getNumPrograms();++i)presets.addItem(p.getProgramName(i),i+1);
         presets.onChange=[this]{processor.setCurrentProgram(presets.getSelectedId()-1);displayedProgram=-1;timerCallback();};
-        timerCallback();setSize(1100,705);setResizable(true,false);setResizeLimits(840,540,1882,1210);
-        if(auto* constrainer=getConstrainer())constrainer->setFixedAspectRatio(1567.0/1004.0);startTimerHz(10);
+        timerCallback();setSize(1100,705);setResizable(false,false);startTimerHz(10);
     }
+    ~Editor() override {stopTimer();}
+    void parentHierarchyChanged() override {compatibleRenderer();}
+    void visibilityChanged() override {if(isShowing())compatibleRenderer();}
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colours::black);}
     void resized() override {
         const float scale=std::min(float(getWidth())/1567.f,float(getHeight())/1004.f);

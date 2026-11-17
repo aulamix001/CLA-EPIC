@@ -4,7 +4,7 @@
 #include <stdexcept>
 void check(bool ok,const char* msg){if(!ok)throw std::runtime_error(msg);}
 int main(){
- const auto& bank=epic::factoryPresets();check(bank.size()==100,"100 factory presets required");
+ const auto& bank=epic::factoryPresets();check(bank.size()==200,"200 factory presets required");
  std::set<std::string> names, signatures;
  for(const auto& p:bank){
   check(names.insert(p.name).second,"unique names");const auto& s=p.settings;
@@ -18,8 +18,13 @@ int main(){
    check(s.time[i]>=1&&s.time[i]<=4000&&s.feedback[i]>=0&&s.feedback[i]<=95,"delay ranges");
    check(s.beats[i]>=.125f&&s.beats[i]<=4,"beat ranges");
    check(s.decay[i]>=.1f&&s.decay[i]<=10&&s.predelay[i]>=0&&s.predelay[i]<=500,"reverb ranges");
+   check(s.time2[i]>=1&&s.time2[i]<=4000&&s.feedback2[i]>=0&&s.feedback2[i]<=95,"tap 2 ranges");
+   check(s.beats2[i]>=.125f&&s.beats2[i]<=4&&s.offset[i]>=-20&&s.offset[i]<=20,"tap 2 sync and offset ranges");
+   check(s.modulation[i]>=0&&s.modulation[i]<=100&&s.reverbMod[i]>=0&&s.reverbMod[i]<=100,"modulation ranges");
    for(float send:s.sends[i])check(send>=0&&send<=100,"send ranges");
   }
+  check(s.crowdWidth>=0&&s.crowdWidth<=100&&s.vso>=0&&s.vso<=3,"width/VSO ranges");
+  check(s.lowRatio>=.25f&&s.lowRatio<=2&&s.highRatio>=.25f&&s.highRatio<=2,"decay ratios");
   check(signatures.insert(signature).second,"unique fader/mute mappings");
   epic::Engine e;e.prepare(48000);double energy=0;float l[256]={},r[256]={};
   for(int block=0;block<200;++block){
@@ -29,5 +34,5 @@ int main(){
   }
   check(energy>.001,"preset produces output");
  }
- std::cout<<"PASS: 100 unique presets, parameter ranges, fader mappings and audio rendering\n";
+ std::cout<<"PASS: 200 unique presets, parameter ranges, fader mappings and audio rendering\n";
 }

@@ -1,19 +1,25 @@
 #pragma once
 #include "Dsp.h"
 #include <string>
+#include <iterator>
 namespace epic {
 struct Preset { std::string name; Settings settings; };
-// 10 application profiles x 10 distinct arrangements. Original EpicLab settings.
-inline const std::array<Preset,100>& factoryPresets() {
+inline constexpr int factoryPresetCount=200;
+// 20 application profiles x 10 arrangements. Slots 0..99 retain their original settings.
+inline const std::array<Preset,factoryPresetCount>& factoryPresets() {
     static const auto bank=[] {
-        std::array<Preset,100> result;
-        const char* groups[]={"Vocal","Guitar","Piano","Drums","Snare","Synth","Ambient","Bass","Bus","FX"};
+        std::array<Preset,factoryPresetCount> result;
+        const char* groups[]={"Vocal","Guitar","Piano","Drums","Snare","Synth","Ambient","Bass","Bus","FX",
+            "Vocal Doubles","Backing Vocals","Acoustic Guitar","Electric Guitar","Strings",
+            "Brass","Percussion","Electronic Drums","Orchestral","Sound Design"};
         const char* styles[]={"Close","Slap","Eighth","Quarter","Dotted","Wide","Dark","Bright","Deep","Wash"};
-        const float mix[]={24,20,22,12,20,28,48,10,12,40};
-        const float decay[]={1.8f,1.4f,2.2f,.7f,1.2f,2.8f,6.f,.6f,1.f,4.f};
-        const float hp[]={140,180,100,200,300,120,180,350,160,240};
+        const float mix[]={24,20,22,12,20,28,48,10,12,40,18,25,16,22,32,20,14,18,36,42};
+        const float decay[]={1.8f,1.4f,2.2f,.7f,1.2f,2.8f,6.f,.6f,1.f,4.f,1.2f,2.4f,1.1f,1.7f,3.6f,1.6f,.9f,1.3f,4.5f,5.5f};
+        const float hp[]={140,180,100,200,300,120,180,350,160,240,180,220,120,240,100,180,280,240,120,200};
         const float beats[]={.25f,.25f,.5f,1.f,.75f,.5f,1.5f,.5f,2.f,3.f};
-        for(int g=0;g<10;++g) for(int v=0;v<10;++v) {
+        static_assert(std::size(groups)*std::size(styles)==factoryPresetCount);
+        static_assert(std::size(mix)==std::size(groups)&&std::size(decay)==std::size(groups)&&std::size(hp)==std::size(groups));
+        for(int g=0;g<int(std::size(groups));++g) for(int v=0;v<10;++v) {
             auto& p=result[g*10+v];p.name=std::string(groups[g])+" / "+styles[v];auto& s=p.settings;
             s.mix=mix[g]+v*.7f; s.output=-1.f;
             for(int i=0;i<8;++i) {

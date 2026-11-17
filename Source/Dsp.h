@@ -50,6 +50,7 @@ struct Settings {
 // Independent delay/comb-network approximation; does not implement Waves' DSP.
 class Engine {
     double sampleRate = 48000;
+    bool prepared = false;
     std::array<std::array<Delay,2>,4> delays, pre;
     std::array<std::array<std::array<Delay,4>,2>,4> combs;
     std::array<std::array<Filter,2>,8> filters {};
@@ -59,14 +60,22 @@ class Engine {
     float inputGain = 1, outputGain = 1, wet = .3f;
     static constexpr float combMs[4][4] = {{29.7f,37.1f,41.1f,43.7f},{11.7f,17.3f,19.9f,23.3f},{43.7f,53.1f,61.7f,71.3f},{67.3f,79.7f,89.3f,101.1f}};
 public:
+    bool isPrepared() const noexcept {return prepared;}
+    void release() noexcept {prepared=false;}
     void prepare(double sr) {
+        prepared=false;
+        sr=std::isfinite(sr)&&sr>=8000&&sr<=768000?sr:48000;
         sampleRate = sr; filters = {}; levels.fill(0); for(auto& t:currentTime)t.fill(1); phase.fill(0);
         inputGain = outputGain = 1; wet = .3f;
         for(auto& bank:delays) for(auto& d:bank) d.prepare(sr);
         for(auto& bank:pre) for(auto& d:bank) d.prepare(sr, .51f);
         for(auto& bank:combs) for(auto& ch:bank) for(auto& d:ch) d.prepare(sr, .15f);
+        prepared=true;
     }
     void process(float* left, float* right, int count, const Settings& s, double bpm = 120) {
+        if(!prepared || count<=0 || left==nullptr || right==nullptr)return;
+        if(!std::isfinite(bpm))bpm=120;
+        const float targetInput=gain(s.input),targetOutput=gain(s.output);
         bool solo = false; for(const auto& strip:s.strips) solo |= strip.solo;
         std::array<float,8> hp {}, lp {}, target {};
         std::array<std::array<float,2>,4> times {};
@@ -88,12 +97,13 @@ public:
             for(int ch=0;ch<2;++ch) for(int k=0;k<4;++k) {
                 taps[i][ch][k]=float(sampleRate*.001)*(combMs[i][k]+ch*.71f);
                 feedbacks[i][ch][k]=std::pow(.001f, (taps[i][ch][k]/float(sampleRate))/std::max(.1f,s.decay[i]));
+                if(i==3)feedbacks[i][ch][k]=std::pow(feedbacks[i][ch][k],1.f/std::max(.25f,k<2?s.lowRatio:s.highRatio));
             }
         }
         const float smoothing=1-std::exp(-1.f/float(sampleRate*.02));
         for(int n=0;n<count;++n) {
-            inputGain += smoothing*(gain(s.input)-inputGain);
-            outputGain += smoothing*(gain(s.output)-outputGain);
+            inputGain += smoothing*(targetInput-inputGain);
+            outputGain += smoothing*(targetOutput-outputGain);
             wet += smoothing*(s.mix*.01f-wet);
             for(int i=0;i<8;++i) levels[i]+=smoothing*(target[i]-levels[i]);
             for(int i=0;i<4;++i) {
@@ -107,7 +117,7 @@ public:
             for(int ch=0;ch<2;++ch) {
                 float dly[4]={};
                 for(int i=0;i<4;++i) {
-                    const float motion=std::sin(phase[i]+ch*pi*.5f)*s.modulation[i]*.00002f*float(sampleRate);
+                    const float motion=s.modulation[i]==0?0:std::sin(phase[i]+ch*pi*.5f)*s.modulation[i]*.00002f*float(sampleRate);
                     float tap=delays[i][ch].read(currentTime[i][ch]+motion);
                     if(i==3) tap=.6f*tap+.27f*delays[i][ch].read(currentTime[i][ch]*1.71f)+.13f*delays[i][ch].read(currentTime[i][ch]*2.53f);
                     const bool open=i!=1 || !s.triggerEnabled || s.trigger;
@@ -125,11 +135,9 @@ public:
                     float sum=0;
                     for(int k=0;k<4;++k) {
                         auto& comb=combs[r][ch][k];
-                        const float motion=std::sin(phase[r+4]+ch+k)*s.reverbMod[r]*.000005f*float(sampleRate);
+                        const float motion=s.reverbMod[r]==0?0:std::sin(phase[r+4]+ch+k)*s.reverbMod[r]*.000005f*float(sampleRate);
                         const float v=comb.read(taps[r][ch][k]+motion);
-                        float fb=feedbacks[r][ch][k];
-                        if(r==3) fb=std::pow(fb,1.f/std::max(.25f,(k<2?s.lowRatio:s.highRatio)));
-                        comb.push(pred+v*fb); sum+=v*.25f;
+                        comb.push(pred+v*feedbacks[r][ch][k]); sum+=v*.25f;
                     }
                     result[ch]+=filters[r+4][ch].process(sum,hp[r+4],lp[r+4])*levels[r+4];
                 }

@@ -2,7 +2,7 @@
 
 Implementação independente C++17/JUCE 8.0.6 de um mixer com quatro delays e quatro reverbs. Usa os anexos como referências de comportamento e organização; não contém nem reproduz o DSP proprietário Waves.
 
-## Interface original preservada (v0.3.3)
+## Interface original preservada (v0.4.0)
 
 A imagem original define o visual e a geometria da interface. Os componentes JUCE são transparentes ou usam sprites do próprio PNG; não há barra adicional, abas redesenhadas, painéis substitutos ou widgets genéricos. Apenas os valores, ponteiros, faders, LEDs e seleção mudam em seus lugares originais, ligados por `SliderAttachment` e `ButtonAttachment` aos parâmetros de áudio.
 
@@ -19,9 +19,9 @@ A imagem original define o visual e a geometria da interface. Os componentes JUC
 
 Os sprites são lidos em memória para desenhar os controles móveis. O PNG original não é editado, recomprimido, regenerado nem substituído. O teste visual compara amostras dos pixels da moldura, divisórias, logotipo, rótulos HP/LP e textura com o arquivo original em tamanho nativo. Uma captura separada `EpicLab-interface.png` acompanha a release.
 
-## 100 presets e sessões
+## 200 presets e sessões
 
-Clique no logotipo CLA/EPIC original para abrir o seletor que oferece 10 perfis (Vocal, Guitar, Piano, Drums, Snare, Synth, Ambient, Bass, Bus, FX), cada um com 10 arranjos (Close, Slap, Eighth, Quarter, Dotted, Wide, Dark, Bright, Deep, Wash). Não há barra de presets sobre a imagem. São presets próprios, sem equivalência com os presets Waves.
+Clique no logotipo CLA/EPIC original para abrir o seletor que oferece 20 perfis (Vocal, Guitar, Piano, Drums, Snare, Synth, Ambient, Bass, Bus, FX, Vocal Doubles, Backing Vocals, Acoustic Guitar, Electric Guitar, Strings, Brass, Percussion, Electronic Drums, Orchestral, Sound Design), cada um com 10 arranjos (Close, Slap, Eighth, Quarter, Dotted, Wide, Dark, Bright, Deep, Wash). Não há barra de presets sobre a imagem. Os primeiros 100 presets mantêm os nomes, posições e configurações da versão anterior; os 100 novos ocupam as posições 101–200. São presets próprios, sem equivalência com os presets Waves.
 
 Cada preset aplica todos os parâmetros: níveis, filtros, mute/solo, ambos os taps, feedbacks, sync, divisões, offset, modulação, trigger, VSO, largura, sends, saídas diretas, decay/predelay/ratios, mix e ganhos. O plugin inicia em Vocal / Close. O cadeado original bloqueia o valor de MIX ao trocar presets; o bloqueio é salvo na sessão. Alterações manuais posteriores são preservadas na sessão; reabrir a sessão restaura os valores editados, sem reaplicar o preset de fábrica. Selecionar outro preset substitui os valores atuais.
 
@@ -41,7 +41,7 @@ O workflow `Windows VST3 x64` compila e executa os testes em Windows Server 2022
 
 ## Validação
 
-Sem JUCE, os testes portáteis verificam silêncio, dry estéreo, impulso, estabilidade, 100 presets e efeitos audíveis de taps, feedback, sync, offset, modulação, trigger, VSO, largura, ratios, sends, filtros e mute/solo:
+Sem JUCE, os testes portáteis verificam silêncio, dry estéreo, impulso, estabilidade, 200 presets e efeitos audíveis de taps, feedback, sync, offset, modulação, trigger, VSO, largura, ratios, sends, filtros e mute/solo:
 
 ```sh
 cmake -S . -B build-dsp -DEPIC_DSP_ONLY=ON
@@ -49,7 +49,7 @@ cmake --build build-dsp
 ctest --test-dir build-dsp --output-on-failure
 ```
 
-O build completo acrescenta `interface_tests`: instancia o editor real, verifica que todos os parâmetros têm componentes interativos na geometria original, testa movimentos dos sliders e atualização por automação, percorre os 100 presets e confere todos os controles, e verifica a restauração de ajustes editados. Esses testes não substituem audição e carregamento numa DAW Windows.
+O build completo acrescenta `interface_tests`: instancia o editor real, verifica que todos os parâmetros têm componentes interativos na geometria original, testa movimentos dos sliders e atualização por automação, percorre os 200 presets e confere todos os controles, e verifica a restauração de ajustes editados. Esses testes não substituem audição e carregamento numa DAW Windows.
 
 ## Limites
 

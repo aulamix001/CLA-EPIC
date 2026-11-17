@@ -7,7 +7,7 @@ function Invoke-Checked([string]$Stage, [scriptblock]$Command) {
     & $Command 2>&1 | Tee-Object -FilePath "build-win/$Stage.log"
     $result = $LASTEXITCODE
     if ($result) {
-        Get-Content "build-win/$Stage.log" | Select-String -Pattern 'error|failed|Exception|what\(\)|mapping|Subprocess|control|restore' | Select-Object -Last 25 | ForEach-Object {
+        Get-Content "build-win/$Stage.log" | Select-String -Pattern 'error|failed|Exception|what\(\)|mapping|Subprocess|control|restore|HOST|timeout' | Select-Object -Last 25 | ForEach-Object {
             $message = $_.ToString().Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
             Write-Host "::error::$Stage - $message"
         }

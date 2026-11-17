@@ -17,7 +17,7 @@ int main(){
  std::unique_ptr<juce::AudioProcessor> p(createPluginFilter());
  std::unique_ptr<juce::AudioProcessorEditor> editor(p->createEditor());
  check(editor!=nullptr,"editor exists");editor->setSize(1100,748);
- auto* combo=dynamic_cast<juce::ComboBox*>(find(*editor,"factoryPresets"));check(combo&&combo->getNumItems()==100,"100 presets in live selector");
+ auto* combo=dynamic_cast<juce::ComboBox*>(find(*editor,"factoryPresets"));check(combo&&combo->getNumItems()==200,"200 presets in live selector");
  std::set<juce::String> visited;
  for(int tab=0;tab<4;++tab){
   for(auto prefix:{"delayTab","reverbTab"}){
@@ -40,7 +40,8 @@ int main(){
  }
  check(visited.size()==size_t(p->getParameters().size()),"every parameter has a live control");
  combo->setSelectedId(0,juce::dontSendNotification);
- for(int n=0;n<100;++n){
+ check(p->getNumPrograms()==200,"host exposes 200 factory programs");
+ for(int n=0;n<p->getNumPrograms();++n){
   combo->setSelectedId(n+1,juce::sendNotificationSync);check(p->getCurrentProgram()==n,"preset selector updates processor");
   const auto& settings=epic::factoryPresets()[size_t(n)].settings;
   auto checkControl=[&](const juce::String& key,float expected){
@@ -89,7 +90,11 @@ int main(){
  }
  juce::MemoryBlock block;p->getStateInformation(block);p->setCurrentProgram(0);p->setStateInformation(block.getData(),int(block.getSize()));
  for(int i=0;i<p->getParameters().size();++i)check(std::abs(p->getParameters()[i]->getValue()-saved[size_t(i)])<.0001f,"session restores edited parameters: "+p->getParameters()[i]->getName(100)+" expected="+juce::String(saved[size_t(i)],8)+" actual="+juce::String(p->getParameters()[i]->getValue(),8));
- check(p->getCurrentProgram()==99,"session restores preset index");
+ check(p->getCurrentProgram()==199,"session restores extended preset index");
+ p->setCurrentProgram(-1);p->setCurrentProgram(200);
+ check(p->getCurrentProgram()==199,"invalid indices preserve current program");
+ check(p->getProgramName(-1).isEmpty()&&p->getProgramName(200).isEmpty(),"invalid names are empty");
+ check(p->getProgramName(99)=="FX / Wash","legacy slot 99 retains its name");
 
  // Preserve the original geometry: no toolbar, replacement panels or generic skin.
  p->setCurrentProgram(0);
@@ -112,7 +117,7 @@ int main(){
  auto preview=juce::File::getCurrentWorkingDirectory().getChildFile("interface-preview.png");
  preview.deleteFile();if(auto stream=preview.createOutputStream()){juce::PNGImageFormat png;check(png.writeImageToStream(snapshot,*stream),"write preview screenshot");}
  editor->setSize(840,540);editor->setSize(1882,1210);
- std::cout<<"PASS: all "<<visited.size()<<" live parameter controls, automation, 100 preset fader mappings and edited state restore\n";
+ std::cout<<"PASS: all "<<visited.size()<<" live parameter controls, automation, 200 preset fader mappings and edited state restore\n";
  return 0;
  }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
 }

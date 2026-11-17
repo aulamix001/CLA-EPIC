@@ -8,6 +8,7 @@ class Processor final : public juce::AudioProcessor {
 public:
     juce::AudioProcessorValueTreeState state;
     epic::Engine engine;
+    std::vector<float> monoScratch;
     std::atomic<int> currentProgram {0};
     std::atomic<bool> mixLocked {false};
     std::array<std::atomic<float>,4> meters {};
@@ -73,12 +74,18 @@ public:
     }
     float value(const juce::String& key) const { return values.at(key)->load(); }
     const juce::String getName() const override { return "EpicLab"; }
-    void prepareToPlay(double sr,int) override { engine.prepare(sr); }
-    void releaseResources() override {}
-    bool isBusesLayoutSupported(const BusesLayout& b) const override { return b.getMainInputChannelSet()==juce::AudioChannelSet::stereo() && b.getMainOutputChannelSet()==juce::AudioChannelSet::stereo(); }
+    void prepareToPlay(double sr,int blockSize) override {
+        monoScratch.resize(size_t(juce::jlimit(1,65536,blockSize>0?blockSize:512)));
+        engine.prepare(sr);
+    }
+    void releaseResources() override {engine.release();}
+    bool isBusesLayoutSupported(const BusesLayout& b) const override { const auto in=b.getMainInputChannelSet(),out=b.getMainOutputChannelSet();
+        return (in==juce::AudioChannelSet::mono() && (out==juce::AudioChannelSet::mono()||out==juce::AudioChannelSet::stereo()))
+            || (in==juce::AudioChannelSet::stereo() && out==juce::AudioChannelSet::stereo()); }
     void processBlock(juce::AudioBuffer<float>& b,juce::MidiBuffer&) override {
         juce::ScopedNoDenormals guard;
-        if(b.getNumChannels()<2 || b.getNumSamples()==0)return;
+        if(b.getNumChannels()==0 || b.getNumSamples()==0 || !engine.isPrepared())return;
+        if(getTotalNumInputChannels()==1 && b.getNumChannels()>=2)b.copyFrom(1,0,b,0,0,b.getNumSamples());
         epic::Settings s; s.input=master[0]->load();s.output=master[1]->load();s.mix=master[2]->load();
         for(int i=0;i<8;++i) {
             auto v=[&](int field){return cached[i][field]->load();};
@@ -91,27 +98,32 @@ public:
                 for(int r=0;r<4;++r) s.sends[i][r]=v(10+r);
             } else {s.decay[i-4]=v(14);s.predelay[i-4]=v(15);s.reverbMod[i-4]=v(16);if(i==7){s.lowRatio=v(26);s.highRatio=v(27);}}
         }
-        for(int ch=0;ch<2;++ch) meters[ch].store(b.getMagnitude(ch,0,b.getNumSamples()));
+        for(int ch=0;ch<2;++ch) meters[ch].store(b.getMagnitude(juce::jmin(ch,b.getNumChannels()-1),0,b.getNumSamples()));
         double bpm=120;
         if(auto* ph=getPlayHead()) if(auto pos=ph->getPosition()) if(auto tempo=pos->getBpm()) bpm=*tempo;
         if(b.getNumChannels()>=2) engine.process(b.getWritePointer(0),b.getWritePointer(1),b.getNumSamples(),s,bpm);
-        for(int ch=0;ch<2;++ch) meters[ch+2].store(b.getMagnitude(ch,0,b.getNumSamples()));
+        else for(int offset=0;offset<b.getNumSamples();){
+            const int n=juce::jmin(int(monoScratch.size()),b.getNumSamples()-offset);
+            auto* left=b.getWritePointer(0,offset);std::copy_n(left,n,monoScratch.data());
+            engine.process(left,monoScratch.data(),n,s,bpm);
+            for(int i=0;i<n;++i)left[i]=(left[i]+monoScratch[size_t(i)])*.5f;
+            offset+=n;
+        }
+        for(int ch=0;ch<2;++ch) meters[ch+2].store(b.getMagnitude(juce::jmin(ch,b.getNumChannels()-1),0,b.getNumSamples()));
     }
     bool acceptsMidi() const override {return false;} bool producesMidi() const override {return false;}
     double getTailLengthSeconds() const override {return 90;}
-    int getNumPrograms() override {return 100;}
+    int getNumPrograms() override {return epic::factoryPresetCount;}
     int getCurrentProgram() override {return currentProgram.load();}
     const juce::String getProgramName(int index) override {
-        return index>=0 && index<100 ? juce::String(epic::factoryPresets()[size_t(index)].name) : juce::String();
+        return index>=0 && index<epic::factoryPresetCount ? juce::String(epic::factoryPresets()[size_t(index)].name) : juce::String();
     }
     void setCurrentProgram(int index) override {
-        if(index<0 || index>=100) return;
+        if(index<0 || index>=epic::factoryPresetCount) return;
         const auto& s=epic::factoryPresets()[size_t(index)].settings;
         auto set=[&](const juce::String& key,float value) {
             if(auto* parameter=state.getParameter(key)) {
-                parameter->beginChangeGesture();
                 parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
-                parameter->endChangeGesture();
             }
         };
         set("input",s.input);set("output",s.output);if(!mixLocked.load())set("mix",s.mix);
@@ -133,7 +145,7 @@ public:
     void changeProgramName(int,const juce::String&) override {}
     bool hasEditor() const override {return true;} juce::AudioProcessorEditor* createEditor() override;
     void getStateInformation(juce::MemoryBlock& dest) override { auto tree=state.copyState();tree.setProperty("factoryProgram",currentProgram.load(),nullptr);tree.setProperty("mixLocked",mixLocked.load(),nullptr);auto xml=tree.createXml();copyXmlToBinary(*xml,dest); }
-    void setStateInformation(const void* data,int size) override { if(auto xml=getXmlFromBinary(data,size)) if(xml->hasTagName("EpicLab")) {auto tree=juce::ValueTree::fromXml(*xml);state.replaceState(tree);mixLocked.store(bool(tree.getProperty("mixLocked",false)));currentProgram.store(juce::jlimit(0,99,int(tree.getProperty("factoryProgram",0))));} }
+    void setStateInformation(const void* data,int size) override { if(auto xml=getXmlFromBinary(data,size)) if(xml->hasTagName("EpicLab")) {auto tree=juce::ValueTree::fromXml(*xml);state.replaceState(tree);mixLocked.store(bool(tree.getProperty("mixLocked",false)));currentProgram.store(juce::jlimit(0,epic::factoryPresetCount-1,int(tree.getProperty("factoryProgram",0))));} }
 };
 #include "Editor.h"
 juce::AudioProcessorEditor* Processor::createEditor(){return new Editor(*this);}
