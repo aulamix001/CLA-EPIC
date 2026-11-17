@@ -2,7 +2,7 @@
 
 Implementação independente C++17/JUCE 8.0.6 de um mixer com quatro delays e quatro reverbs. Usa os anexos como referências de comportamento e organização; não contém nem reproduz o DSP proprietário Waves.
 
-## Interface original preservada (v0.3.1)
+## Interface original preservada (v0.3.2)
 
 A imagem original define o visual e a geometria da interface. Os componentes JUCE são transparentes ou usam sprites do próprio PNG; não há barra adicional, abas redesenhadas, painéis substitutos ou widgets genéricos. Apenas os valores, ponteiros, faders, LEDs e seleção mudam em seus lugares originais, ligados por `SliderAttachment` e `ButtonAttachment` aos parâmetros de áudio.
 

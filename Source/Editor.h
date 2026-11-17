@@ -21,18 +21,18 @@ inline void digital(juce::Graphics& g,juce::String text,juce::Rectangle<float> a
         case 'W':return bits({1,2,4,5,11,13});case 'Y':return bits({8,10,12});case '-':return bits({6,7});case '/':return bits({10,11});default:return 0;
         }
     };
-    text=text.toUpperCase();const float width=std::max(1.f,float(text.length())*24.f);
+    text=text.toUpperCase();float width=0;for(auto c:text)width+=c=='.'?6.f:24.f;width=std::max(1.f,width);
     const float scale=std::min(area.getWidth()/width,area.getHeight()/35.f);
     const float start=area.getX()+(area.getWidth()-width*scale)*.5f, top=area.getCentreY()-17.f*scale;
-    int index=0;for(auto c:text){const float x=start+index++*24*scale;auto mask=glyph(c);
-        for(int n=0;n<14;++n){g.setColour(colour.withAlpha((mask&(1u<<n))?.95f:.035f));const auto* l=lines[n];g.drawLine(x+l[0]*scale,top+l[1]*scale,x+l[2]*scale,top+l[3]*scale,std::max(1.f,1.5f*scale));}
-        if(c=='.'){g.setColour(colour);g.fillEllipse(x+5*scale,top+30*scale,3*scale,3*scale);}
+    float advance=0;for(auto c:text){const float x=start+advance*scale;advance+=c=='.'?6.f:24.f;auto mask=glyph(c);
+        if(c!='.')for(int n=0;n<14;++n){g.setColour(colour.withAlpha((mask&(1u<<n))?.95f:.035f));const auto* l=lines[n];g.drawLine(x+l[0]*scale,top+l[1]*scale,x+l[2]*scale,top+l[3]*scale,std::max(1.5f,2.4f*scale));}
+        if(c=='.'){g.setColour(colour);g.fillEllipse(x+1*scale,top+30*scale,3*scale,3*scale);}
     }
 }
 inline void display(juce::Graphics& g,juce::Rectangle<int> rect,const juce::String& value,juce::Colour c,bool grid=true){
     if(grid){
-        static const auto blueTile=original().getClippedImage({184,136,16,8});
-        static const auto redTile=original().getClippedImage({818,250,16,8});
+        static const auto blueTile=original().getClippedImage({220,249,16,8});
+        static const auto redTile=original().getClippedImage({835,348,16,8});
         g.setTiledImageFill(c==red()?redTile:blueTile,float(rect.getX()),float(rect.getY()),1.f);g.fillRect(rect);
     }else{g.setColour(juce::Colour(0xff071017));g.fillRect(rect);}
     digital(g,value,rect.toFloat().reduced(2),c);
@@ -84,7 +84,7 @@ public:
             g.drawImageTransformed(sprite,juce::AffineTransform::rotation(angle,float(getWidth())*.5f,float(getHeight())*.5f));
         } else if(kind==fader){
             // Copy neighbouring metal texture, preserving the original thumb sprite.
-            g.drawImage(image,0,0,getWidth(),getHeight(),int(emptyX),source.getY(),getWidth(),source.getHeight());
+            g.drawImage(image,0,0,getWidth(),getHeight(),int(emptyX),source.getY(),getComponentID()=="output"?1:getWidth(),source.getHeight());
             const int cx=getWidth()/2;
             g.setColour(juce::Colour(0xff060809));g.fillRoundedRectangle(float(cx-4),32,8.f,276.f,3.f);
             const float t=float(1-valueToProportionOfLength(getValue()));const int y=int(32+t*276)-thumb.getHeight()/2;
@@ -119,12 +119,9 @@ public:
         if(id.endsWith("_sync")||id.endsWith("_sync2")||id.endsWith("_triggerEnabled")){
             skin::display(g,getLocalBounds().reduced(2),getToggleState()?"ON":"OFF",getToggleState()?colour:colour.withAlpha(.5f));
         } else if(sprite.getHeight()==36){
-            g.drawImage(image,0,0,getWidth(),getHeight(),sprite.getX()<80?32:89,275,51,36);
-            if(getToggleState()){g.setColour(colour.withAlpha(.45f));g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(2),2);}
-            g.setColour(getToggleState()?colour.withAlpha(.7f):juce::Colour(0xff17252d));g.fillRect(getWidth()/2-11,5,23,26);
-            const int index=(sprite.getY()-275)/43;
-            const auto label=sprite.getX()<80?juce::String(index+1):juce::String::charToString(juce::juce_wchar('A'+index));
-            skin::digital(g,label,{float(getWidth()/2-9),6,19,24},getToggleState()?juce::Colours::black:colour.withAlpha(.7f));
+            const int index=(sprite.getY()-275)/43+(sprite.getX()<80?0:4);
+            const bool originalOn=index==1||index==2||index==6;
+            if(getToggleState()!=originalOn){g.setColour(getToggleState()?colour.withAlpha(.45f):juce::Colours::black.withAlpha(.65f));g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(2),2);}
         } else if(getToggleState()){g.setColour(colour.withAlpha(.45f));g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(2),2);}
         else if(sprite.isEmpty()||id.endsWith("_direct")){g.setColour(juce::Colours::black.withAlpha(.7f));g.fillRect(getLocalBounds().reduced(1));}
     }
@@ -155,27 +152,27 @@ class LiveSurface final : public juce::Component,private juce::Timer {
     }
     void selectDelay(int i){
         delayIndex=i;delayFields.clear();delayButtons.clear();const auto c=skin::blue();auto id=[&](const char* f){return Processor::id(i,f);};
-        slider(delayFields,id("time"),SkinSlider::number,{319,145,104,34},c);
-        slider(delayFields,id("feedback"),SkinSlider::number,{326,219,86,27},c);
-        slider(delayFields,id("beats"),SkinSlider::number,{285,187,113,25},c);
+        slider(delayFields,id("time"),SkinSlider::number,{340,146,70,32},c);
+        slider(delayFields,id("feedback"),SkinSlider::number,{290,216,72,28},c);
+        slider(delayFields,id("beats"),SkinSlider::number,{311,185,44,25},c);
         button(delayButtons,id("sync"),{204,187,38,25},{204,187,38,25},c);
         slider(delayFields,id("mod"),SkinSlider::knob,{672,49,66,66},c);
         if(i<2){
-            slider(delayFields,id("time2"),SkinSlider::number,{610,145,104,34},c);
-            slider(delayFields,id("feedback2"),SkinSlider::number,{615,219,86,27},c);
-            slider(delayFields,id("beats2"),SkinSlider::number,{575,187,113,25},c);
-            slider(delayFields,id("offset"),SkinSlider::number,{518,250,84,25},c);
+            slider(delayFields,id("time2"),SkinSlider::number,{632,146,69,32},c);
+            slider(delayFields,id("feedback2"),SkinSlider::number,{577,216,71,28},c);
+            slider(delayFields,id("beats2"),SkinSlider::number,{596,185,43,25},c);
+            slider(delayFields,id("offset"),SkinSlider::number,{493,247,58,26},c);
             button(delayButtons,id("sync2"),{490,187,38,25},{204,187,38,25},c);
         }
         if(i==1){button(delayButtons,id("triggerEnabled"),{339,115,38,18},{339,115,38,18},c);button(delayButtons,id("trigger"),{381,115,27,18},{381,115,27,18},c);}
-        if(i==2)slider(delayFields,id("vso"),SkinSlider::number,{610,145,104,34},c);
-        if(i==3)slider(delayFields,id("width"),SkinSlider::number,{610,145,104,34},c);
+        if(i==2)slider(delayFields,id("vso"),SkinSlider::number,{632,146,69,32},c);
+        if(i==3)slider(delayFields,id("width"),SkinSlider::number,{632,146,69,32},c);
         repaint();
     }
     void selectReverb(int r){
         reverbIndex=r;reverbFields.clear();const auto c=skin::red();auto id=[&](const char* f){return Processor::id(r+4,f);};
-        slider(reverbFields,id("predelay"),SkinSlider::number,{919,191,137,38},c);
-        slider(reverbFields,id("decay"),SkinSlider::number,{1168,267,98,40},c);
+        slider(reverbFields,id("predelay"),SkinSlider::number,{932,194,65,33},c);
+        slider(reverbFields,id("decay"),SkinSlider::number,{1174,261,58,34},c);
         slider(reverbFields,id("mod"),SkinSlider::knob,{1294,49,66,66},c);
         if(r==3){slider(reverbFields,id("lowRatio"),SkinSlider::number,{1003,318,69,26},c);slider(reverbFields,id("highRatio"),SkinSlider::number,{1240,318,69,26},c);}
         repaint();
@@ -199,7 +196,7 @@ public:
             }
         }
         slider(common,"input",SkinSlider::fader,{68,578,44,342},b,{72,717,36,64},116);
-        slider(common,"output",SkinSlider::fader,{1454,578,44,342},r,{1458,717,36,64},1404);
+        slider(common,"output",SkinSlider::fader,{1454,578,44,342},r,{1458,717,36,64},1442);
         slider(common,"mix",SkinSlider::knob,{1461,461,43,44},b);
         for(int n=0;n<4;++n){
             delayTabs[n].setBounds(skin::stripX(n)+2,926,145,36);delayTabs[n].setComponentID("delayTab"+juce::String(n));delayTabs[n].onClick=[this,n]{selectDelay(n);};addAndMakeVisible(delayTabs[n]);
@@ -228,20 +225,18 @@ public:
         skin::display(g,{1442,412,84,28},juce::String(processor.value("mix"),1),b,false);
         skin::display(g,{589,96,68,29},juce::String(processor.value(Processor::id(delayIndex,"mod")),1),b);
         skin::display(g,{1215,96,68,29},juce::String(processor.value(Processor::id(reverbIndex+4,"mod")),1),r);
-        skin::display(g,{1214,191,100,38},juce::String(processor.value(Processor::id(reverbIndex+4,"decay")),2),r);
+        skin::display(g,{1158,194,96,33},juce::String(processor.value(Processor::id(reverbIndex+4,"decay")),2),r);
         for(int i=0;i<4;++i){const int routeX[]={190,337,485,632};skin::display(g,{routeX[i]+58,322,63,21},processor.value(Processor::id(i,"direct"))>.5f?"0.0":"--",b);}
         if(delayIndex!=1){g.setColour(juce::Colour(0xff081820));g.fillRect(266,112,145,24);}
         if(delayIndex>=2){
-            skin::display(g,{495,145,105,32},delayIndex==2?"VSO":"WIDTH",b);
+            skin::display(g,{483,145,100,32},delayIndex==2?"VSO":"WIDTH",b);
             g.setColour(juce::Colour(0xff081820));g.fillRect(490,184,259,64);g.fillRect(385,250,219,25);
         }
         if(reverbIndex!=3){g.setColour(juce::Colour(0xff22100c));g.fillRect(870,314,451,32);}
         for(int i=0;i<8;++i){
-            const int x=skin::stripX(i);g.drawImage(image,x+2,926,145,36,176,926,145,36);
-            const bool active=i<4?i==delayIndex:i-4==reverbIndex;
-            if(active){g.setColour((i<4?b:r).withAlpha(.45f));g.fillRect(x+2,926,145,34);}
-            g.setColour(juce::Colour(0xff252b2e));g.fillRect(x+60,928,26,30);
-            skin::digital(g,i<4?juce::String(i+1):juce::String::charToString(juce::juce_wchar('A'+i-4)),{float(x+60),929,26,28},juce::Colours::lightgrey);
+            const int x=skin::stripX(i);const bool active=i<4?i==delayIndex:i-4==reverbIndex;
+            const bool originalActive=i==1||i==7;
+            if(active!=originalActive){g.setColour(active?(i<4?b:r).withAlpha(.45f):juce::Colours::black.withAlpha(.65f));g.fillRect(x+2,926,145,34);}
         }
         for(int side=0;side<2;++side)for(int ch=0;ch<2;++ch)for(int led=0;led<7;++led){
             const float db=juce::Decibels::gainToDecibels(meterValues[size_t(side*2+ch)],-60.f);const bool on=db>=-36+led*6;
