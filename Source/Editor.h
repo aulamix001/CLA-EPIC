@@ -174,7 +174,7 @@ class LiveSurface final : public juce::Component,private juce::Timer {
         slider(reverbFields,id("predelay"),SkinSlider::number,{932,194,65,33},c);
         slider(reverbFields,id("decay"),SkinSlider::number,{1174,261,58,34},c);
         slider(reverbFields,id("mod"),SkinSlider::knob,{1294,49,66,66},c);
-        if(r==3){slider(reverbFields,id("lowRatio"),SkinSlider::number,{1003,318,69,26},c);slider(reverbFields,id("highRatio"),SkinSlider::number,{1240,318,69,26},c);}
+        if(r==3){slider(reverbFields,id("lowRatio"),SkinSlider::number,{1018,316,56,27},c);slider(reverbFields,id("highRatio"),SkinSlider::number,{1252,316,56,27},c);}
         repaint();
     }
     void timerCallback() override {for(int i=0;i<4;++i)meterValues[i]=std::max(processor.meters[i].load(),meterValues[i]*.85f);repaint();}
@@ -222,9 +222,9 @@ public:
         if(delayIndex!=1){skin::display(g,{269,54,178,43},delayNames[delayIndex],b);skin::display(g,{207,60,23,35},juce::String(delayIndex+1),b);}
         if(reverbIndex!=3){skin::display(g,{885,54,190,43},reverbNames[reverbIndex],r);skin::display(g,{837,60,23,35},juce::String(3-reverbIndex),r);}
         for(int i=0;i<8;++i){const int x=skin::stripX(i);skin::display(g,{x+24,411,100,28},juce::String(processor.value(Processor::id(i,"level")),1),i<4?b:r,false);}
-        skin::display(g,{1442,412,84,28},juce::String(processor.value("mix"),1),b,false);
-        skin::display(g,{589,96,68,29},juce::String(processor.value(Processor::id(delayIndex,"mod")),1),b);
-        skin::display(g,{1215,96,68,29},juce::String(processor.value(Processor::id(reverbIndex+4,"mod")),1),r);
+        skin::display(g,{1437,410,98,31},juce::String(processor.value("mix"),1),b,false);
+        skin::display(g,{585,90,70,33},juce::String(processor.value(Processor::id(delayIndex,"mod")),1),b);
+        skin::display(g,{1210,90,70,33},juce::String(processor.value(Processor::id(reverbIndex+4,"mod")),1),r);
         skin::display(g,{1158,194,96,33},juce::String(processor.value(Processor::id(reverbIndex+4,"decay")),2),r);
         for(int i=0;i<4;++i){const int routeX[]={190,337,485,632};skin::display(g,{routeX[i]+58,322,63,21},processor.value(Processor::id(i,"direct"))>.5f?"0.0":"--",b);}
         if(delayIndex!=1){g.setColour(juce::Colour(0xff081820));g.fillRect(266,112,145,24);}
