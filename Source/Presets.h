@@ -31,9 +31,12 @@ inline const std::array<Preset,100>& factoryPresets() {
                 s.time[d]=(v==1?70.f:100.f)+g*11.f+d*37.f+v*9.f;
                 s.sync[d]=(v>=2 && v<=4);s.beats[d]=std::min(4.f,beats[v]*(d==1?1.5f:1.f));
                 s.feedback[d]=v<2?8.f+g:20.f+v*3.f+d;
+                s.time2[d]=s.time[d]*1.5f;s.feedback2[d]=s.feedback[d];s.sync2[d]=s.sync[d];s.beats2[d]=std::min(4.f,s.beats[d]*1.5f);
+                s.offset[d]=v>=5?float(v-4):0;s.modulation[d]=float(v*3);s.reverbMod[d]=float(v*2);
                 s.direct[d]=true;
                 s.sends[d].fill(0);
             }
+            s.crowdWidth=20.f+v*7.f;s.lowRatio=1.f;s.highRatio=v==6?.6f:1.f;
             s.sends[delay][reverb]=v<2?10.f:25.f+v*4.f;
             for(int r=0;r<4;++r) {
                 s.decay[r]=std::min(10.f,decay[g]*(.65f+v*.12f)+r*.15f);

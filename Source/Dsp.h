@@ -36,7 +36,12 @@ struct Settings {
     float input = 0, output = 0, mix = 30;
     std::array<Strip, 8> strips {};
     std::array<float, 4> time {120,250,100,35}, feedback {25,35,10,15};
-    std::array<bool, 4> sync {};
+    std::array<bool, 4> sync {}, sync2 {};
+    std::array<float,4> time2 {180,375,100,35}, feedback2 {25,35,10,15}, beats2 {.75f,.75f,.25f,.125f};
+    std::array<float,4> offset {}, modulation {};
+    std::array<float,4> reverbMod {};
+    bool triggerEnabled=false, trigger=false;
+    float crowdWidth=35, vso=0, lowRatio=1, highRatio=1;
     std::array<float, 4> beats {.5f,.5f,.25f,.125f};
     std::array<float, 4> decay {1.5f, .8f, 2.5f, 4.f}, predelay {0,0,10,20};
     std::array<std::array<float, 4>, 4> sends {};
@@ -48,13 +53,14 @@ class Engine {
     std::array<std::array<Delay,2>,4> delays, pre;
     std::array<std::array<std::array<Delay,4>,2>,4> combs;
     std::array<std::array<Filter,2>,8> filters {};
-    std::array<float,4> currentTime {};
+    std::array<std::array<float,2>,4> currentTime {};
+    std::array<float,8> phase {};
     std::array<float,8> levels {};
     float inputGain = 1, outputGain = 1, wet = .3f;
     static constexpr float combMs[4][4] = {{29.7f,37.1f,41.1f,43.7f},{11.7f,17.3f,19.9f,23.3f},{43.7f,53.1f,61.7f,71.3f},{67.3f,79.7f,89.3f,101.1f}};
 public:
     void prepare(double sr) {
-        sampleRate = sr; filters = {}; levels.fill(0); currentTime.fill(1);
+        sampleRate = sr; filters = {}; levels.fill(0); for(auto& t:currentTime)t.fill(1); phase.fill(0);
         inputGain = outputGain = 1; wet = .3f;
         for(auto& bank:delays) for(auto& d:bank) d.prepare(sr);
         for(auto& bank:pre) for(auto& d:bank) d.prepare(sr, .51f);
@@ -63,7 +69,7 @@ public:
     void process(float* left, float* right, int count, const Settings& s, double bpm = 120) {
         bool solo = false; for(const auto& strip:s.strips) solo |= strip.solo;
         std::array<float,8> hp {}, lp {}, target {};
-        std::array<float,4> times {};
+        std::array<std::array<float,2>,4> times {};
         std::array<std::array<std::array<float,4>,2>,4> taps {}, feedbacks {};
         for(int i=0;i<8;++i) {
             hp[i]=1-std::exp(-2*pi*std::clamp(s.strips[i].hp, 10.f, float(sampleRate*.45))/float(sampleRate));
@@ -71,7 +77,14 @@ public:
             target[i]=(!s.strips[i].mute && (!solo || s.strips[i].solo)) ? gain(s.strips[i].level):0;
         }
         for(int i=0;i<4;++i) {
-            times[i]=float(sampleRate*.001)*std::clamp(s.sync[i]?float(60000/std::clamp(bpm,20.,400.))*s.beats[i]:s.time[i],1.f,4000.f);
+            for(int ch=0;ch<2;++ch) {
+                const bool second=ch==1 && i<2;
+                const bool sync=second?s.sync2[i]:s.sync[i];
+                float ms=sync?float(60000/std::clamp(bpm,20.,400.))*(second?s.beats2[i]:s.beats[i]):(second?s.time2[i]:s.time[i]);
+                if(i==2 && s.vso>0 && !sync) ms=s.vso<1.5f?160.f:s.vso<2.5f?80.f:40.f;
+                if(i==3) ms+=s.crowdWidth*(ch==0?1.1f:1.37f);
+                times[i][ch]=float(sampleRate*.001)*std::clamp(ms*(1+(ch==0?1:-1)*s.offset[i]*.01f),1.f,4000.f);
+            }
             for(int ch=0;ch<2;++ch) for(int k=0;k<4;++k) {
                 taps[i][ch][k]=float(sampleRate*.001)*(combMs[i][k]+ch*.71f);
                 feedbacks[i][ch][k]=std::pow(.001f, (taps[i][ch][k]/float(sampleRate))/std::max(.1f,s.decay[i]));
@@ -83,13 +96,22 @@ public:
             outputGain += smoothing*(gain(s.output)-outputGain);
             wet += smoothing*(s.mix*.01f-wet);
             for(int i=0;i<8;++i) levels[i]+=smoothing*(target[i]-levels[i]);
-            for(int i=0;i<4;++i) currentTime[i]+=smoothing*(times[i]-currentTime[i]);
+            for(int i=0;i<4;++i) {
+                for(int ch=0;ch<2;++ch) currentTime[i][ch]+=smoothing*(times[i][ch]-currentTime[i][ch]);
+                phase[i]+=2*pi*(.15f+s.modulation[i]*.018f)/float(sampleRate);
+                phase[i+4]+=2*pi*(.11f+s.reverbMod[i]*.013f)/float(sampleRate);
+                if(phase[i]>2*pi)phase[i]-=2*pi;
+                if(phase[i+4]>2*pi)phase[i+4]-=2*pi;
+            }
             float in[2]={left[n]*inputGain,right[n]*inputGain}, result[2]={};
             for(int ch=0;ch<2;++ch) {
                 float dly[4]={};
                 for(int i=0;i<4;++i) {
-                    const float tap=delays[i][ch].read(currentTime[i]);
-                    float feed=in[ch]+tap*std::clamp(s.feedback[i]*.01f,0.f,.95f);
+                    const float motion=std::sin(phase[i]+ch*pi*.5f)*s.modulation[i]*.00002f*float(sampleRate);
+                    float tap=delays[i][ch].read(currentTime[i][ch]+motion);
+                    if(i==3) tap=.6f*tap+.27f*delays[i][ch].read(currentTime[i][ch]*1.71f)+.13f*delays[i][ch].read(currentTime[i][ch]*2.53f);
+                    const bool open=i!=1 || !s.triggerEnabled || s.trigger;
+                    float feed=(open?in[ch]:0)+tap*std::clamp((i<2 && ch==1?s.feedback2[i]:s.feedback[i])*.01f,0.f,.95f);
                     if(i==0) feed=std::tanh(feed); // Tape-like saturation
                     delays[i][ch].push(feed);
                     dly[i]=filters[i][ch].process(tap,hp[i],lp[i])*levels[i];
@@ -103,8 +125,11 @@ public:
                     float sum=0;
                     for(int k=0;k<4;++k) {
                         auto& comb=combs[r][ch][k];
-                        const float v=comb.read(taps[r][ch][k]);
-                        comb.push(pred+v*feedbacks[r][ch][k]); sum+=v*.25f;
+                        const float motion=std::sin(phase[r+4]+ch+k)*s.reverbMod[r]*.000005f*float(sampleRate);
+                        const float v=comb.read(taps[r][ch][k]+motion);
+                        float fb=feedbacks[r][ch][k];
+                        if(r==3) fb=std::pow(fb,1.f/std::max(.25f,(k<2?s.lowRatio:s.highRatio)));
+                        comb.push(pred+v*fb); sum+=v*.25f;
                     }
                     result[ch]+=filters[r+4][ch].process(sum,hp[r+4],lp[r+4])*levels[r+4];
                 }

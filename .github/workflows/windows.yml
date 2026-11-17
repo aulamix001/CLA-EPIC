@@ -35,5 +35,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes 'VST3 x64 with 100 factory presets. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP; DAW validation and listening tests remain pending.'
+          gh release create "$env:GITHUB_REF_NAME" dist/EpicLab-Windows-x64-VST3.zip dist/SHA256SUMS.txt --title "EpicLab $env:GITHUB_REF_NAME - Windows x64" --notes 'VST3 x64 with live faders, knobs, buttons, routing, meters and 100 fully mapped factory presets. Extract the ZIP and copy the complete EpicLab.vst3 folder into C:\Program Files\Common Files\VST3. Independent DSP. Automated interface mapping tests included; listening tests in a DAW remain pending.'
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
